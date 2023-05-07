@@ -1,0 +1,9 @@
+.ant-menu-light.ant-menu-horizontal >.ant-menu-item-selected{
+    /* sets the text color of the selected item to white*/
+    color: white !important;
+}
+
+.ant-menu-light .ant-menu-item-active{
+    /* sets the text color to white when the cursor hovers over the item*/
+    color: white !important;
+}
