@@ -8,3 +8,4 @@ APIs we need for the AI motion counting:
 
 - 1. user history list [ video thumbnail， description( count, category, date) ]
 - 2. new video with the exercise category, count and date
+2. try
