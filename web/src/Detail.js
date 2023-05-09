@@ -1,6 +1,6 @@
 // we need to install the router
 import {useSearchParams} from 'react-router-dom';
-import {Layout, Row, Col, Divider, Rate} from "antd";
+import {Layout, Row, Col, Divider, Rate, Image, Carousel} from "antd";
 
 const {Content} = Layout;
 
@@ -47,10 +47,15 @@ const Description = () => {
     </div>
     );
 }
+const imgs = ["https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80", "https://www.exploregeorgia.org/sites/default/files/styles/slideshow_large/public/2022-06/timberline-glamping-lake-lanier.jpg?itok=pGl5rdJe"]
 // image component
 const Imgs = () => {
     return (
-        <div> imgs </div>
+        <div>
+            <Carousel autoplay style={{ background: `rgba(209, 209, 209, 0,5)`, height: 300, textAlign:"center"}}>
+                {imgs.map((img, idx) => <Image key = {idx} height={300} src={img} />)}
+            </Carousel>
+        </div>
     );
 }
 
