@@ -1,4 +1,4 @@
-import React ,{useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Layout, List, Card, Rate } from 'antd';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
@@ -26,7 +26,7 @@ const Parks = () =>{
 //  get park list for home page
     const getParks = () => {
         axios.get('/api/get_park_list', {params:{}}).then((res)=>{
-            console.log(res);
+            console.log(process.env.REACT_APP_MAP_API);
             setParks(res.data.data);
         }).catch((error)=>{
             console.log(error);

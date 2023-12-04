@@ -22,7 +22,7 @@ const Detail = ({windowHeight}) =>{
     //  get park detail
     const getParksDetail = (id) => {
         axios.get('/api/get_park_detail', {params:{id:id}}).then((res)=>{
-            console.log(res);
+//            console.log(res);
             setPark(res.data.data);
         }).catch((error)=>{
             console.log(error);
@@ -44,7 +44,7 @@ const Detail = ({windowHeight}) =>{
                     <Divider plain>Park Images</Divider>
                     <Imgs images={park.images}/>
                     <Divider plain>Location</Divider>
-                    <Maps latlng={{lat:parseFloat(park.latitude), lng:parseFloat(park.longitude)}} zoom={8}/>
+                    <Maps latlng={{lat:parseFloat(park.latitude), lng:parseFloat(park.longitude)}} zoom={9}/>
                 </Col>
             </Row>
         </Content>
@@ -53,8 +53,6 @@ const Detail = ({windowHeight}) =>{
 
 // description component
 const Description = ({park}) => {
-    console.log(park);
-
     return (
         <div>
             <Row><h1>{park.fullName}</h1></Row>
@@ -66,6 +64,7 @@ const Description = ({park}) => {
             <Row style={{marginTop:"15px"}}><h3>Address: {park.address}</h3></Row>
             <Row style={{marginTop:"10px"}}><h3>Park Description: </h3></Row>
             <Row style={{marginTop:"5px"}}><span>{park.description}</span></Row>
+
 
         </div>
     );

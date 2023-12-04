@@ -4,8 +4,7 @@ import GoogleMapReact from "google-map-react";
 // Map component
 
 const Maps = ({latlng, zoom}) =>{
-    const [key] = useState("AIzaSyB_zatFU9dZqtZJN-BWsb2XmTyWArAj5a0");
-//    console.log(latlng);
+    const [key] = useState(process.env.REACT_APP_MAP_API);
 
     const [intLatLng, setLatLng] = useState(latlng);
     const [inZoom, setZoom] = useState(zoom);
