@@ -99,8 +99,8 @@ def get_park_detail(request):
     print(id)
     # find the park by id
     park = pymongo.MongoDB.ca_np.find_one({"id": id})   
-    # count the number of comments
-    comments_num = pymongo.MongoDB.comments.count_documents({"parkId": id})
+    # count the number of comments in the park
+    comments_num = len(pymongo.MongoDB.comments.find_one({"parkId": id}, {"comments": 1})['comments'])
 
     data = {"id": park['id'], "fullName": park['fullName'],
             "rating": park['rating'], "comments": comments_num,
