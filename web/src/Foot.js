@@ -11,7 +11,7 @@ const Foot = () => {
                     // color:'#fff',
                     // backgroundColor:'#7dbcea'
             }}>
-                xueyuan - hahahaha
+
             </Footer>
 
     );

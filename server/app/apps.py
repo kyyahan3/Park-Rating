@@ -1,5 +1,9 @@
 from django.http import HttpResponse
-import json
+from django.views.decorators.http import require_http_methods
+import json, hashlib, time
+from bson import binary
+from bson.objectid import ObjectId
+from . import pymongo
 
 
 def response(code: int, message: str, data: any = None):
@@ -14,12 +18,95 @@ def response(code: int, message: str, data: any = None):
     return HttpResponse(json.dumps(body, sort_keys=True, ensure_ascii=False))
 
 
-list_data = [
-    {"title": "test1", "starts": 1, "desc": "test1 desc", "imgs": [
-        "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80",
-        "https://www.exploregeorgia.org/sites/default/files/styles/slideshow_large/public/2022-06/timberline-glamping-lake-lanier.jpg?itok=pGl5rdJe"]}
-]
+# add park
+@require_http_methods('POST')
+def add_park(request):
+    param = json.loads(request.body.decode('utf-8'))
+
+    if str(param) == '':
+        return response(1, "parameters cannot be null.")
+
+    park = {
+        "id": "", "fullName": "", "description": "", "state": "", "latitude": "", "longitude": "",
+        "images": [], "addtime": int(time.time())
+    }
+
+    # required parameters
+    if 'fullName' not in param or 'description' not in param or 'state' not in param:
+        return response(1, "fullName, state and description cannot be null.")
+    park['fullName'], park['state'], park['description'] = param['fullName'], param['state'], param['description']
+
+    # optional parameters
+    if 'latitude' in param and 'longitude' in param:
+        park['latitude'], park['longitude'] = param['latitude'], param['longitude']
+
+    if 'images' in param:
+        park['images'] = param['images']
+
+    ret = pymongo.MongoDB.ca_np.insert_one(park)
+
+    return response(0, "ok", {"id": str(ret.inserted_id)})
 
 
-def list(request):
-    return response(0, "ok", list_data)
+# uplaod image
+@require_http_methods('POST')
+def upload_image(request):
+    f = request.FILES['file']
+    body = f.read()
+    md5 = hashlib.md5(body).hexdigest()
+    filetype = f.content_type
+    # avoid duplicates
+    img = pymongo.MongoDB.images.find_one({"md5": md5})
+    if img is not None:
+        return response(0, "ok", {"id": str(img["_id"])})
+
+    ret = pymongo.MongoDB.images.insert_one({"md5": md5, "type": filetype, "body": binary.Binary(body)})
+    return response(0, "ok", {"id": str(ret.inserted_id)})
+
+
+# get image
+@require_http_methods('GET')
+def get_image(request):
+    id = request.GET.get('id', "")
+    img = pymongo.MongoDB.images.find_one({"_id": ObjectId(id)})
+    if img is None:
+        return response(100, "image not exists.")
+
+    return HttpResponse(img['body'], img['type'])
+
+
+# get camp list
+@require_http_methods('GET')
+def get_park_list(request):
+    parks = []
+    data = pymongo.MongoDB.ca_np.find({}, {"id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1,
+                                           "images": 1}).limit(12)
+    print(data)
+    for x in data:
+        print(x)
+        parks.append({
+            "id": x['id'], "fullName": x['fullName'],
+            "rating": x['rating'], "state": x['states'],
+            "description": x['description'],
+            "imageUrl": [img['url'] for img in x['images']]
+        })
+    return response(0, "ok", parks)
+
+
+@require_http_methods('GET')
+def get_park_detail(request):
+    id = request.GET.get("id", "")
+    print(id)
+
+    park = pymongo.MongoDB.ca_np.find_one({"id": id})   #  find the park by id
+    print(park)
+
+    data = {"id": park['id'], "fullName": park['fullName'],
+            "rating": park['rating'], "comments": len(park['reviews']),
+            "description": park['description'], "state": park['states'],
+            "address": park['addresses'][-1]["line1"],
+            "latitude": park['latitude'], "longitude": park['longitude'],
+            "images": [img['url'] for img in park['images']] if park['images'] else [''],
+            }
+    print(data)
+    return response(0, "ok", data)

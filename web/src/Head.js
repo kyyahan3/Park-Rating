@@ -12,7 +12,7 @@ const Head = () => {
                  <div style={{
                     color:"white",fontSize:"22px",float:"left",width:"120px",display:"block",textAlign: "left", marginLeft: "-30px"
                 }}>
-                    YelpCamping
+                    ParkRating
                 </div>
 
                 <div style={{

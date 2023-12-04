@@ -1,27 +1,50 @@
 // we need to install the router
 import {useSearchParams} from 'react-router-dom';
-import {Layout, Row, Col, Divider, Rate, Image, Carousel} from "antd";
+import {useState, useEffect} from 'react';
+import {Layout, Row, Col, Divider, Rate, Carousel, Image, List, Typography, Button, Modal, Input} from "antd";
+import axios from 'axios';
+import Maps from "./Map";
 
 const {Content} = Layout;
+const {Paragraph, Text} = Typography;
+const {TextArea} = Input;
 
 const Detail = ({windowHeight}) =>{
     const [searchParams] = useSearchParams();
+//    const [paramID, setParamID] = useState(searchParams.get("id"));
+    const [park, setPark] = useState({title: "", stars: 0, address: "", description:"", comments: 0, latitude:0, longitude:0, images: []});
+
+    useEffect(()=>{
+        const paramID = searchParams.get('id');
+        getParksDetail(paramID);
+    }, []);
+
+    //  get park detail
+    const getParksDetail = (id) => {
+        axios.get('/api/get_park_detail', {params:{id:id}}).then((res)=>{
+            console.log(res);
+            setPark(res.data.data);
+        }).catch((error)=>{
+            console.log(error);
+        });
+    };
 
     return(
         <Content style={{minHeight:windowHeight}}>
-            <Row>
-                <Col span={14}>
-                    <Description />
+            <Row style={{marginTop:"20px"}}>
+                <Col span={2}></Col>
+                <Col span={12}>
+                    <Description park={park}/>
                     <Divider>latestdescription</Divider>
                     <Comments />
                 </Col>
 
 
-                <Col span={10}>
-                    <Divider>campImage</Divider>
-                    <Imgs />
-                    <Divider>locationInformatin</Divider>
-                    <Maps />
+                <Col span={7} offset={1}>
+                    <Divider plain>Park Images</Divider>
+                    <Imgs images={park.images}/>
+                    <Divider plain>Location</Divider>
+                    <Maps latlng={{lat:parseFloat(park.latitude), lng:parseFloat(park.longitude)}} zoom={8}/>
                 </Col>
             </Row>
         </Content>
@@ -29,31 +52,31 @@ const Detail = ({windowHeight}) =>{
 }
 
 // description component
-const Description = () => {
+const Description = ({park}) => {
+    console.log(park);
+
     return (
-    <div>
-        <Row><h1>Test</h1></Row>
-        <Row style={{lineHeight:"30px"}}>
-            <Col span={6}><Rate disabled defaultValue={4}/></Col>
-            <Col span={4}><span>avg Rating 4 </span></Col>
-            <Col span={4}>total rating number 1000 </Col>
-            <Col>2023-05-05</Col>
-        </Row>
-        <Row><h3>address: jdsfjuhefuevfej</h3></Row>
-        <Row><h3>camp description: jdsfjuhefuevfej</h3></Row>
-        <Row><span>sjnejbeh</span></Row>
+        <div>
+            <Row><h1>{park.fullName}</h1></Row>
+            <Row style={{marginTop:"10px", lineHeight:"35px"}}>
+                <Col span={6}><Rate disabled defaultValue={park.rating} value={park.rating}/></Col>
+                <Col span={6}><span>Average Rating: {park.rating} </span></Col>
+                <Col span={4}>{park.comments} comments </Col>
+            </Row>
+            <Row style={{marginTop:"15px"}}><h3>Address: {park.address}</h3></Row>
+            <Row style={{marginTop:"10px"}}><h3>Park Description: </h3></Row>
+            <Row style={{marginTop:"5px"}}><span>{park.description}</span></Row>
 
-
-    </div>
+        </div>
     );
 }
-const imgs = ["https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80", "https://www.exploregeorgia.org/sites/default/files/styles/slideshow_large/public/2022-06/timberline-glamping-lake-lanier.jpg?itok=pGl5rdJe"]
+
 // image component
-const Imgs = () => {
+const Imgs = ({images}) => {
     return (
         <div>
             <Carousel autoplay style={{ background: `rgba(209, 209, 209, 0,5)`, height: 300, textAlign:"center"}}>
-                {imgs.map((img, idx) => <Image key = {idx} height={300} src={img} />)}
+                {images.map((img, idx) => <Image key = {idx} height={300} src={img} />)}
             </Carousel>
         </div>
     );
@@ -63,13 +86,6 @@ const Imgs = () => {
 const Comments =() => {
     return (
         <div> comments </div>
-    );
-}
-
-// map component
-const Maps = () => {
-    return (
-        <div> map </div>
     );
 }
 
