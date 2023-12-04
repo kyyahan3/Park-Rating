@@ -97,12 +97,13 @@ def get_park_list(request):
 def get_park_detail(request):
     id = request.GET.get("id", "")
     print(id)
-
-    park = pymongo.MongoDB.ca_np.find_one({"id": id})   #  find the park by id
-    print(park)
+    # find the park by id
+    park = pymongo.MongoDB.ca_np.find_one({"id": id})   
+    # count the number of comments
+    comments_num = pymongo.MongoDB.comments.count_documents({"parkId": id})
 
     data = {"id": park['id'], "fullName": park['fullName'],
-            "rating": park['rating'], "comments": len(park['reviews']),
+            "rating": park['rating'], "comments": comments_num,
             "description": park['description'], "state": park['states'],
             "address": park['addresses'][-1]["line1"],
             "latitude": park['latitude'], "longitude": park['longitude'],
@@ -110,3 +111,27 @@ def get_park_detail(request):
             }
     print(data)
     return response(0, "ok", data)
+
+@require_http_methods('POST')
+def add_comment(request):
+    if str(request.body, 'utf-8') == "":
+        return response(1, "parameters cannot be null")
+
+    comment = {
+        "parkId": "", "user": "", "rating": 0,
+        "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "text": "",
+    }
+
+    param = json.loads(request.body)
+
+    if "parkId" not in param or param["parkId"] == "":
+        return response(1, "parkId is required")
+    comment['parkId'] = param['parkId']
+
+    if "user" not in param or param["user"] == "":
+        return response(1, "user is required")
+    comment['user'] = param['user']
+
+
+

@@ -1,7 +1,6 @@
-// we need to install the router
-import {useSearchParams} from 'react-router-dom';
+import {useSearchParams} from 'react-router-dom'; // install the router
 import {useState, useEffect} from 'react';
-import {Layout, Row, Col, Divider, Rate, Carousel, Image, List, Typography, Button, Modal, Input} from "antd";
+import {Layout, Row, Col, Divider, Rate, Carousel, Image, List, Typography, Button, Modal, Input, message} from "antd";
 import axios from 'axios';
 import Maps from "./Map";
 
@@ -11,7 +10,7 @@ const {TextArea} = Input;
 
 const Detail = ({windowHeight}) =>{
     const [searchParams] = useSearchParams();
-//    const [paramID, setParamID] = useState(searchParams.get("id"));
+    const [paramID, setParamID] = useState(searchParams.get("id"));
     const [park, setPark] = useState({title: "", stars: 0, address: "", description:"", comments: 0, latitude:0, longitude:0, images: []});
 
     useEffect(()=>{
@@ -31,12 +30,12 @@ const Detail = ({windowHeight}) =>{
 
     return(
         <Content style={{minHeight:windowHeight}}>
-            <Row style={{marginTop:"20px"}}>
+            <Row style={{marginTop:"25px"}}>
                 <Col span={2}></Col>
                 <Col span={12}>
                     <Description park={park}/>
-                    <Divider>latestdescription</Divider>
-                    <Comments />
+                    <Divider plain>Latest Comments</Divider>
+                    <Comments parkID = {paramID}/>
                 </Col>
 
 
@@ -82,10 +81,119 @@ const Imgs = ({images}) => {
 }
 
 // comment component
-const Comments =() => {
+const Comments =(parkID) => {
+    console.log({parkID})
+    const [coms, setComs] = useState([]);
+
+    useEffect(()=>{
+        getCommentList(parkID);
+    }, []);
+
+    const commentAddEventHandle = () => {
+//        const data = comments.map(item=>item);
+//        setComs(data);
+        getCommentList(parkID);
+    }
+
+    const getCommentList = (id) =>{
+        axios.get('/api/get_comments', {params:{parkID:id}}).then((res)=>{
+            console.log(res);
+            setComs(res.data.data);
+        }).catch((error)=>{
+            console.log(error);
+        });
+
+    };
     return (
-        <div> comments </div>
+        <div>
+            <List
+                header={<CommentButton parkID={parkID} addEventCallbackFunc={commentAddEventHandle}/>}
+                bordered
+                size="small"
+                dataSource={coms}
+                renderItem={(item) => (
+                    <List.Item>
+                        <Typography>
+                            <Paragraph>
+                                <span> User: {item.author_name}</span>
+                                <span style={{marginLeft:"20px"}}> Rating: {item.rating}</span>
+                                <span style={{marginLeft:"20px"}}> Time: {item.time}</span>
+                            </Paragraph>
+                            <Text>{item.text}</Text>
+                        </Typography>
+                    </List.Item>
+                )}
+            />
+        </div>
     );
+}
+
+
+const CommentButton = ({parkID, commentAddEventCallbackFunc})=>{
+    const [show, setShow] = useState(false);
+
+    const [user, setUser] = useState("");
+    const [rating, setRating] = useState(0);
+    const [text, setText] = useState("");
+
+    const handelShowModal = () => {
+        setUser("");
+        setRating(0);
+        setText("");
+        setShow(true);
+    }
+
+    const handelCancelModal = () =>{
+        setShow(false);
+    }
+
+    const handelOkModal = () =>{
+        console.log("user:", user);
+        console.log("ratings:", rating);
+        console.log("text:", text);
+//        comments.push({user:user, rating:rating, time:"", text:text});
+        const param = {parkId:parkID, user:user, rating:rating, text:text}
+        addComment(param);
+    }
+
+    const addComment = (param) =>{
+        axios.post("/api/add_comment", {data: param}, {header:{"Content-Type":"application/json"}}).then((res)=>{
+            console.log(res);
+            if(res.data.code != 0){
+                message.error(res.data.message);
+                return
+            }
+            addEventCallbackFunc();
+            setShow(false);
+
+        }).catch((error)=>{
+            message.error(error);
+            console.log(error)
+        })
+
+    }
+
+    return(
+        <div>
+            <Button tone="primary" size="small" onClick={handelShowModal}>Comment</Button>
+            <Modal title="comment" open={show} onOk={handelOkModal} onCancel={handelCancelModal}>
+                <Row>
+                    <Col span={3}>User Name: </Col>
+                    <Col span={10}><Input size="small" value={user} onChange={e=>{ e.persist(); setUser(e.target.value); }} /></Col>
+                </Row>
+                <Row>
+                    <Col span={3}>Rating: </Col>
+                    <Col span={18}><Rate value={rating} onChange={setRating}/></Col>
+                </Row>
+                <Row>
+                    <Col span={3}>Comments: </Col>
+                    <Col span={18}><TextArea row={4} value={text} onChange={e => {e.persist(); setText(e.target.value);}}/></Col>
+                </Row>
+            </Modal>
+        </div>
+    )
+
+
 }
 
 export default Detail;
