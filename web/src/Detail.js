@@ -4,9 +4,13 @@ import {Layout, Row, Col, Divider, Rate, Carousel, Image, List, Typography, Butt
 import axios from 'axios';
 import Maps from "./Map";
 
+import {no_image} from './constants/global';
+
 const {Content} = Layout;
 const {Paragraph, Text} = Typography;
 const {TextArea} = Input;
+
+
 
 const Detail = ({windowHeight}) =>{
     const [searchParams] = useSearchParams();
@@ -21,7 +25,7 @@ const Detail = ({windowHeight}) =>{
     //  get park detail
     const getParksDetail = (id) => {
         axios.get('/api/get_park_detail', {params:{id:id}}).then((res)=>{
-//            console.log(res);
+//            console.log(res.data.data.images);
             setPark(res.data.data);
         }).catch((error)=>{
             console.log(error);
@@ -41,7 +45,7 @@ const Detail = ({windowHeight}) =>{
 
                 <Col span={7} offset={1}>
                     <Divider plain>Park Images</Divider>
-                    <Imgs images={park.images}/>
+                    <Imgs images={park.images.length === 0 || park.images.every(img => img === '') ? [no_image] : park.images} />
                     <Divider plain>Location</Divider>
                     <Maps latlng={{lat:parseFloat(park.latitude), lng:parseFloat(park.longitude)}} zoom={9}/>
                 </Col>
@@ -63,8 +67,6 @@ const Description = ({park}) => {
             <Row style={{marginTop:"15px"}}><h3>Address: {park.address}</h3></Row>
             <Row style={{marginTop:"10px"}}><h3>Park Description: </h3></Row>
             <Row style={{marginTop:"5px"}}><span>{park.description}</span></Row>
-
-
         </div>
     );
 }
@@ -82,7 +84,6 @@ const Imgs = ({images}) => {
 
 // comment component
 const Comments =(parkID) => {
-    console.log({parkID})
     const [coms, setComs] = useState([]);
 
     useEffect(()=>{
@@ -96,8 +97,8 @@ const Comments =(parkID) => {
     }
 
     const getCommentList = (id) =>{
-        axios.get('/api/get_comments', {params:{parkID:id}}).then((res)=>{
-            console.log(res);
+        axios.get('/api/get_comments', {params:{parkID:id.parkID}}).then((res)=>{
+            console.log(parkID);
             setComs(res.data.data);
         }).catch((error)=>{
             console.log(error);
@@ -148,9 +149,9 @@ const CommentButton = ({parkID, commentAddEventCallbackFunc})=>{
     }
 
     const handelOkModal = () =>{
-        console.log("user:", user);
-        console.log("ratings:", rating);
-        console.log("text:", text);
+        // console.log("user:", user);
+        // console.log("ratings:", rating);
+        // console.log("text:", text);
 //        comments.push({user:user, rating:rating, time:"", text:text});
         const param = {parkId:parkID, user:user, rating:rating, text:text}
         addComment(param);

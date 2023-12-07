@@ -8,5 +8,6 @@ urlpatterns = [
     path('/upload_image', apps.upload_image),
     path('/get_image', apps.get_image),
     path('/get_park_detail', apps.get_park_detail),
+    path('/get_comments', apps.get_comments),
 
 ]

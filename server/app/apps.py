@@ -1,10 +1,10 @@
 from django.http import HttpResponse
 from django.views.decorators.http import require_http_methods
 import json, hashlib, time
+from datetime import datetime, timezone
 from bson import binary
 from bson.objectid import ObjectId
 from . import pymongo, pyredis
-
 
 def response(code: int, message: str, data: any = None):
     body = {"code": code, "message": message, "data": {}}
@@ -97,10 +97,13 @@ def get_park_list(request):
 def get_park_detail(request):
     id = request.GET.get("id", "")
     park = {}
-    # check in redis. return if exists
-    # else, read from mongo. If found, updates in the cache and return the content
-    # if comments are updated, delete the cache
+    # check in redis first. return if exists
+    detail = pyredis.getParkDetail(id)
+    if detail is not None:
+        print("find by redis.")
+        return response(0, "ok", detail)
 
+    # else, read from mongo. If found, updates in the cache and return the content
     # find the park by id
     data = pymongo.MongoDB.ca_np.find_one({"id": id})
     # count the number of comments in the park
@@ -113,9 +116,36 @@ def get_park_detail(request):
             "latitude": data['latitude'], "longitude": data['longitude'],
             "images": [img['url'] for img in data['images']] if data['images'] else [''],
             }
-    # print(park)
+    pyredis.setParkDetail(id, park)
+    print("find by mongo.")
     return response(0, "ok", park)
 
+def findCommentByID(id):
+    coms = []
+    for com in comments_data:
+        if com['parkId'] == id:
+            coms.append(com)
+    return coms
+@require_http_methods("GET")
+def get_comments(request):
+    parkID = request.GET.get("parkID", "")
+    comments = []
+    data = pymongo.MongoDB.comments.find_one({"parkId": parkID})
+
+    sorted_data = sorted(data['comments'], key=lambda x: x["time"], reverse=True)
+
+    for com in sorted_data:
+        human_time = datetime.fromtimestamp(int(com['time']), timezone.utc)
+
+        comments.append({
+            "parkId": parkID,
+            "author_name": com['author_name'],
+            "rating": float(com['rating']),
+            "time": human_time.strftime('%Y-%m-%d %H:%M'),
+            "text": com['text'],
+        })
+
+    return response(0, "ok", comments)
 @require_http_methods('POST')
 def add_comment(request):
     if str(request.body, 'utf-8') == "":
@@ -133,9 +163,30 @@ def add_comment(request):
         return response(1, "parkId is required")
     comment['parkId'] = param['parkId']
 
+    park = pymongo.MongoDB.ca_np.find_one({"id": param['parkId']})
+
+    if park is None:
+        return response(1, "The parkId is invalid")
+
     if "user" not in param or param["user"] == "":
         return response(1, "user is required")
     comment['user'] = param['user']
 
+    if "rating" not in param or param["rating"] == "":
+        return response(1, "rating is required")
+    comment['rating'] = param['rating']
+
+    if "text" not in param or param["text"] == "":
+        return response(1, "description is required")
+    comment['text'] = param['text']
+
+    pymongo.MongoDB.comments.insert_one(comment)
+
+    avgRating = int(((park['rating'] * park['comments']) + comment['rating'])/(park['comments']+1))
+    pymongo.MongoDB.ca_np.update_one({"id": param['parkId']}, {'$inc':{"comments":1}, "$set":{"rating":avgRating}})
+
+    # If any comment is updated, delete the cache
+    pyredis.setParkDetail(param['parkId'])
+    return response(0, "ok")
 
 

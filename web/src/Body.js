@@ -5,6 +5,8 @@ import axios from 'axios';
 const {Content} = Layout;
 const {Meta} = Card;
 
+import {no_image} from './constants/global';
+
 
 // body overall component
 const Body = ({windowHeight}) => {
@@ -44,7 +46,7 @@ const Parks = () =>{
                         <Link to={{pathname:`/detail`, search:`id=${item.id}`}}>
                             <Card
                                 style={{width:300}}
-                                cover={<img style={{height:"180px", width:"300px"}} src={item.imageUrl[0] ? item.imageUrl[0] : "https://propertywiselaunceston.com.au/wp-content/themes/property-wise/images/thumbnail-default@2x.png"} />}
+                                cover={<img style={{height:"180px", width:"300px"}} src={item.imageUrl[0] ? item.imageUrl[0]:no_image} />}
                             >
 
                                 <Rate disabled defaultValue={item.rating}/>
