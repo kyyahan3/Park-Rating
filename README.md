@@ -26,7 +26,7 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
 - APIs for Detailed Searches: Developed RESTful APIs to enable detailed searches of park information.<br></br>
     <p float="left">
       <img src="home_page.png" height=360 width="600" />
-      <img src="detail.png" height=450 width="600" /> 
+      <img src="detail.png" height=400 width="600" /> 
     </p>
 2. Web UI Design:
 - Built Using Django: We designed a simple web UI with Django to display park information.
