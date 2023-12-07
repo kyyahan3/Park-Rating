@@ -24,12 +24,11 @@ const App = () => {
 
             </Routes>
 
-
             <Footer/ >
         </Layout>
     </BrowserRouter>
 
     );
 }
-//            <Body windowHeight={500}/ >
+           // <Body windowHeight={500}/ >
 export default App;

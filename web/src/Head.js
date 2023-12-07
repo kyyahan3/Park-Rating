@@ -7,7 +7,7 @@ const {Header} = Layout;
 
 
 const Head = () => {
-    const [menus, setMenus]= useState([ {title:"Campgrounds", path:"/"},{title:"About",path:"/"} ]);
+    const [menus, setMenus]= useState([ {title:"Parks", path:"/"},{title:"About",path:"/"} ]);
     const navigate = useNavigate();
 
     const menuClick = (event) => {
@@ -33,7 +33,7 @@ const Head = () => {
                         marginLeft: "50px"
                     }}
                     mode="horizontal"
-                    defaultSelectedKeys = {['Campgrounds']}
+                    defaultSelectedKeys = {['Parks']}
                     items={menus.map((item)=>{
                       const key=item.title;
                       return {key, label: `${item.title}`, path: item.path};

@@ -11,11 +11,11 @@ const {Paragraph, Text} = Typography;
 const {TextArea} = Input;
 
 
-
 const Detail = ({windowHeight}) =>{
     const [searchParams] = useSearchParams();
     const [paramID, setParamID] = useState(searchParams.get("id"));
-    const [park, setPark] = useState({title: "", stars: 0, address: "", description:"", comments: 0, latitude:0, longitude:0, images: []});
+    const [park, setPark] = useState({title: "", stars: 0, address: "", description:"", comments: 0, latitude:0, longitude:0,
+        images: [], opening_hours: "", entrance_fee: "", activities: ""});
 
     useEffect(()=>{
         const paramID = searchParams.get('id');
@@ -25,7 +25,8 @@ const Detail = ({windowHeight}) =>{
     //  get park detail
     const getParksDetail = (id) => {
         axios.get('/api/get_park_detail', {params:{id:id}}).then((res)=>{
-//            console.log(res.data.data.images);
+            // console.log(id);
+           // console.log(res.data.data);
             setPark(res.data.data);
         }).catch((error)=>{
             console.log(error);
@@ -48,7 +49,11 @@ const Detail = ({windowHeight}) =>{
                     <Imgs images={park.images.length === 0 || park.images.every(img => img === '') ? [no_image] : park.images} />
                     <Divider plain>Location</Divider>
                     <Maps latlng={{lat:parseFloat(park.latitude), lng:parseFloat(park.longitude)}} zoom={9}/>
+                    <Divider plain>News</Divider>
+                    {/*<News parkID = {paramID}/>*/}
+                    <News parkID = {paramID}/>
                 </Col>
+
             </Row>
         </Content>
     );
@@ -62,11 +67,17 @@ const Description = ({park}) => {
             <Row style={{marginTop:"10px", lineHeight:"35px"}}>
                 <Col span={6}><Rate disabled defaultValue={park.rating} value={park.rating}/></Col>
                 <Col span={6}><span>Average Rating: {park.rating} </span></Col>
+                <Col span={4}>Ticket: {park.entrance_fee}</Col>
                 <Col span={4}>{park.comments} comments </Col>
             </Row>
-            <Row style={{marginTop:"15px"}}><h3>Address: {park.address}</h3></Row>
-            <Row style={{marginTop:"10px"}}><h3>Park Description: </h3></Row>
-            <Row style={{marginTop:"5px"}}><span>{park.description}</span></Row>
+            <Row style={{marginTop:"15px"}}><h3>Opening hours:</h3></Row>
+            <Row style={{marginTop:"3px"}}><span>{park.opening_hours}</span></Row>
+            <Row style={{marginTop:"15px"}}><h3>Directions:</h3></Row>
+            <Row style={{marginTop:"3px"}}><span>{park.address}</span></Row>
+            <Row style={{marginTop:"15px"}}><h3>Park Description: </h3></Row>
+            <Row style={{marginTop:"3px"}}><span>{park.description}</span></Row>
+            <Row style={{marginTop:"15px"}}><h3>Activities: </h3></Row>
+            <Row style={{marginTop:"3px"}}><span>{park.activities}</span></Row>
         </div>
     );
 }
@@ -91,14 +102,12 @@ const Comments =(parkID) => {
     }, []);
 
     const commentAddEventHandle = () => {
-//        const data = comments.map(item=>item);
-//        setComs(data);
         getCommentList(parkID);
     }
 
     const getCommentList = (id) =>{
         axios.get('/api/get_comments', {params:{parkID:id.parkID}}).then((res)=>{
-            console.log(parkID);
+            // console.log(parkID);
             setComs(res.data.data);
         }).catch((error)=>{
             console.log(error);
@@ -193,8 +202,48 @@ const CommentButton = ({parkID, commentAddEventCallbackFunc})=>{
             </Modal>
         </div>
     )
-
-
 }
+
+// released news list
+const News = (parkID) => {
+    const [news, setNews] = useState([]);
+
+    useEffect(()=>{
+        getNewsList(parkID);
+    }, []);
+
+    const getNewsList = (id) =>{
+        axios.get('/api/search_park_news', {params:{parkID:id.parkID}}).then((res)=>{
+            console.log(parkID);
+            setNews(res.data.data);
+        }).catch((error)=>{
+            console.log(error);
+        });
+
+    };
+
+    return (
+        <div>
+            <List
+                size="small"
+                dataSource={news}
+                renderItem={(item) => (
+                    <List.Item>
+                        <Typography>
+                            <Paragraph>
+                                <Row><h4>Title: {item.title}</h4></Row>
+                                <Row> Time: {item.time}</Row>
+                            </Paragraph>
+                            <Text>{item.abstract}</Text>
+                        </Typography>
+                    </List.Item>
+                )}
+            />
+        </div>
+    );
+}
+
+
+
 
 export default Detail;

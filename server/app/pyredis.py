@@ -19,7 +19,7 @@ def parkDetailKey(id):
 
 def setParkDetail(id, detail):
     value = json.dumps(detail)
-    RedisCache.set(parkDetailKey(id), value, ex=600)  # valid for 10 mins
+    RedisCache.set(parkDetailKey(id), value, ex=10)  # valid for 10 mins 600
 
 
 # get info in cache
