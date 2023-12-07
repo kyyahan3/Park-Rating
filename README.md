@@ -35,7 +35,7 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
 
 
 ## Other information
-UI component package: Ant Design (we used components like Layout, Button, Rate, Input textbox, Card, List, Typography, etc.)
+UI component package: Ant Design (we used components like Layout, Button, Rate, Input textbox, Card, List, Typography, etc.)<br>
 `pnpm install axios` is a Promise based HTTP client for the browser and node.js
 
 
