@@ -3,7 +3,7 @@ from django.views.decorators.http import require_http_methods
 import json, hashlib, time
 from bson import binary
 from bson.objectid import ObjectId
-from . import pymongo
+from . import pymongo, pyredis
 
 
 def response(code: int, message: str, data: any = None):
@@ -96,21 +96,25 @@ def get_park_list(request):
 @require_http_methods('GET')
 def get_park_detail(request):
     id = request.GET.get("id", "")
-    print(id)
+    park = {}
+    # check in redis. return if exists
+    # else, read from mongo. If found, updates in the cache and return the content
+    # if comments are updated, delete the cache
+
     # find the park by id
-    park = pymongo.MongoDB.ca_np.find_one({"id": id})   
+    data = pymongo.MongoDB.ca_np.find_one({"id": id})
     # count the number of comments in the park
     comments_num = len(pymongo.MongoDB.comments.find_one({"parkId": id}, {"comments": 1})['comments'])
 
-    data = {"id": park['id'], "fullName": park['fullName'],
-            "rating": park['rating'], "comments": comments_num,
-            "description": park['description'], "state": park['states'],
-            "address": park['addresses'][-1]["line1"],
-            "latitude": park['latitude'], "longitude": park['longitude'],
-            "images": [img['url'] for img in park['images']] if park['images'] else [''],
+    park = {"id": data['id'], "fullName": data['fullName'],
+            "rating": data['rating'], "comments": comments_num,
+            "description": data['description'], "state": data['states'],
+            "address": data['addresses'][-1]["line1"],
+            "latitude": data['latitude'], "longitude": data['longitude'],
+            "images": [img['url'] for img in data['images']] if data['images'] else [''],
             }
-    print(data)
-    return response(0, "ok", data)
+    # print(park)
+    return response(0, "ok", park)
 
 @require_http_methods('POST')
 def add_comment(request):
