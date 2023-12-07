@@ -7,7 +7,7 @@ const {Header} = Layout;
 
 
 const Head = () => {
-    const [menus, setMenus]= useState([ {title:"Campgrounds", path:"/"}, {title:"Menu",path:"/"},{title:"About",path:"/"} ]);
+    const [menus, setMenus]= useState([ {title:"Campgrounds", path:"/"},{title:"About",path:"/"} ]);
     const navigate = useNavigate();
 
     const menuClick = (event) => {
