@@ -34,7 +34,7 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
 - Detailed Park Information: Upon clicking on a specific park (second image), detailed information is displayed including location on Google Maps, park rating, description, images, and the most updated user comments.
 
 
-## other information
+## Other information
 UI component package: Ant Design (we used components like Layout, Button, Rate, Input textbox, Card, List, Typography, etc.)
 `pnpm install axios` is a Promise based HTTP client for the browser and node.js
 
