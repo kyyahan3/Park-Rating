@@ -25,13 +25,13 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
 - Database with MongoDB: MongoDB serves as our primary database, ideal for storing complex information about national parks in America.
 - APIs for Detailed Searches: Developed RESTful APIs to enable detailed searches of park information.<br></br>
     <p float="left">
-      <img src="home_page.png" height=450 width="600" />
+      <img src="home_page.png" height=360 width="600" />
       <img src="detail.png" height=450 width="600" /> 
     </p>
 2. Web UI Design:
 - Built Using Django: We designed a simple web UI with Django to display park information.
-- Home Page Overview: The home page (image on the left side) provides a brief view of each park.
-- Detailed Park Information: Upon clicking on a specific park (image on the right side), detailed information is displayed including location on Google Maps, park rating, description, images, and the most updated user comments.
+- Home Page Overview: The home page (first image) provides a brief view of each park.
+- Detailed Park Information: Upon clicking on a specific park (second image), detailed information is displayed including location on Google Maps, park rating, description, images, and the most updated user comments.
 
 
 ## other information
