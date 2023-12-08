@@ -28,7 +28,7 @@ To use the Google Map feature, we need to have an API key. create your `.env` li
 - APIs for Detailed Searches: Developed RESTful APIs to enable detailed searches of park information.<br></br>
     <p float="left">
       <img src="home_page.png" height=360 width="600" />
-      <img src="detail.png" height=480 width="600" /> 
+      <img src="detail.png" height=500 width="600" /> 
     </p>
 2. Web UI Design:
 - Built Using Django: We designed a simple web UI with Django to display park information.
