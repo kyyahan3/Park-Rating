@@ -49,8 +49,7 @@ const Detail = ({windowHeight}) =>{
                     <Imgs images={park.images.length === 0 || park.images.every(img => img === '') ? [no_image] : park.images} />
                     <Divider plain>Location</Divider>
                     <Maps latlng={{lat:parseFloat(park.latitude), lng:parseFloat(park.longitude)}} zoom={9}/>
-                    <Divider plain>News</Divider>
-                    {/*<News parkID = {paramID}/>*/}
+                    <Divider style={{marginTop:"25px"}} plain>News</Divider>
                     <News parkID = {paramID}/>
                 </Col>
 
@@ -231,7 +230,7 @@ const News = (parkID) => {
                     <List.Item>
                         <Typography>
                             <Paragraph>
-                                <Row><h4>Title: {item.title}</h4></Row>
+                                <Row><h5>Title: {item.title}</h5></Row>
                                 <Row> Time: {item.time}</Row>
                             </Paragraph>
                             <Text>{item.abstract}</Text>
@@ -242,8 +241,6 @@ const News = (parkID) => {
         </div>
     );
 }
-
-
 
 
 export default Detail;

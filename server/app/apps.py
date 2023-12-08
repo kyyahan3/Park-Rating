@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from bson import binary
 from bson.objectid import ObjectId
 from . import pymongo, pyredis
+from .help_functions import format_opening_hours
 
 # format the response
 def response(code: int, message: str, data: any = None):
@@ -120,7 +121,7 @@ def get_park_detail(request):
             "address": data['directionsInfo'],
             "activities": ', '.join(data['activities']),
             "entrance_fee": entrance_fee,
-            "opening_hours": str(data['operatingHours'][-1]['standardHours'])[1:-1],
+            "opening_hours": format_opening_hours(data['operatingHours'][-1]['standardHours']),
             "latitude": data['latitude'], "longitude": data['longitude'],
             "images": [img['url'] for img in data['images']] if data['images'] else [''],
             }
@@ -200,7 +201,7 @@ def search_park_opening_hours(request):
     park = {}
     # check in redis first. return if exists
     detail = pyredis.getParkDetail(id)
-    print(detail)
+    # print(detail)
     if detail is not None:
         print("find by redis.")
         return response(0, "ok", detail)
@@ -290,7 +291,7 @@ def search_park_news(request):
             "parkId": parkID,
             "title": x['title'],
             "abstract": x['abstract'],
-            "time": x["releaseDate"]
+            "time": x["releaseDate"][:16]
         })
 
     print("find by mongo.")
@@ -303,7 +304,7 @@ def search_park_thingstodo(request):
 
     park_code = pymongo.MongoDB.ca_np.find_one({"id": id}, {'parkCode': 1})
     data = pymongo.MongoDB.thingstodo.find_one({"relatedParks": {"$elemMatch": {'parkCode': park_code['parkCode']}}})
-    print("thingstodo", data)
+    # print("thingstodo", data)
 
     if not data:
         return response(1, "no new released", {})
