@@ -28,14 +28,15 @@ def add_park(request):
         return response(1, "parameters cannot be null.")
 
     park = {
-        "id": "", "fullName": "", "description": "", "state": "", "latitude": "", "longitude": "",
+        "id": "", "fullName": "", "description": "", "states": "", "latitude": "", "longitude": "",
         "images": [], "addtime": int(time.time())
     }
 
     # required parameters
-    if 'fullName' not in param or 'description' not in param or 'state' not in param:
-        return response(1, "fullName, state and description are required.")
-    park['fullName'], park['state'], park['description'] = param['fullName'], param['state'], param['description']
+    if 'fullName' not in param or 'description' not in param or 'state' not in param or "rating" not in param:
+        return response(1, "fullName, state, rating and description are required.")
+    park['id'], park['fullName'], park['states'] = param['id'], param['fullName'], param['state']
+    park['description'], park['rating'] = param['description'], param['rating']
 
     # optional parameters
     if 'latitude' in param and 'longitude' in param:
@@ -45,6 +46,8 @@ def add_park(request):
         park['images'] = param['images']
 
     ret = pymongo.MongoDB.ca_np.insert_one(park)
+    # delete in cache
+    pyredis.deleteParkList()
 
     return response(0, "ok", {"id": str(ret.inserted_id)})
 
@@ -52,13 +55,14 @@ def add_park(request):
 # uplaod a image
 @require_http_methods('POST')
 def upload_image(request):
-    f = request.FILES['file']
+    f = request.FILES['image']
     body = f.read()
     md5 = hashlib.md5(body).hexdigest()
     filetype = f.content_type
     # avoid duplicates by checking hash
     img = pymongo.MongoDB.images.find_one({"md5": md5})
     if img is not None:
+        print("image exists!")
         return response(0, "ok", {"id": str(img["_id"])})
 
     ret = pymongo.MongoDB.images.insert_one({"md5": md5, "type": filetype, "body": binary.Binary(body)})
@@ -80,16 +84,24 @@ def get_image(request):
 @require_http_methods('GET')
 def get_park_list(request):
     parks = []
+    # check in redis first
+    data = pyredis.getParkList()
+    if data is not None:
+        print("park_list find by redis.")
+        return response(0, "ok", data)
+
     data = pymongo.MongoDB.ca_np.find({}, {"id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
-    print(data)
+    print("park_list find by mongo.")
+
     for x in data:
-        print(x)
+        # print(x)
         parks.append({
             "id": x['id'], "fullName": x['fullName'],
             "rating": x['rating'], "state": x['states'],
             "description": x['description'],
             "imageUrl": [img['url'] for img in x['images']]
         })
+    pyredis.setParkList(parks)
     return response(0, "ok", parks)
 
 
@@ -107,21 +119,24 @@ def get_park_detail(request):
     data = pymongo.MongoDB.ca_np.find_one({"id": id})
 
     # count the number of comments in the park
-    entrance_fee = data['entranceFees']
+    entrance_fee = data['entranceFees'] if "entranceFees" in data else []
     if len(entrance_fee) > 0:
         entrance_fee = entrance_fee[0]['cost']
     else:
         entrance_fee = "FREE"
 
-    comments_num = len(pymongo.MongoDB.comments.find_one({"parkId": id}, {"comments": 1})['comments'])
+    if "comments" in data:
+        comments_num = len(pymongo.MongoDB.comments.find_one({"parkId": id}, {"comments": 1})['comments'])
+    else:
+        comments_num = 0
 
     park = {"id": data['id'], "fullName": data['fullName'],
             "rating": data['rating'], "comments": comments_num,
             "description": data['description'], "state": data['states'],
-            "address": data['directionsInfo'],
-            "activities": ', '.join(data['activities']),
+            "address": data['directionsInfo'] if 'directionsInfo' in data else "",
+            "activities": ', '.join(data['activities']) if 'activities' in data else "",
             "entrance_fee": entrance_fee,
-            "opening_hours": format_opening_hours(data['operatingHours'][-1]['standardHours']),
+            "opening_hours": format_opening_hours(data['operatingHours'][-1]['standardHours']) if "operatingHours" in data else "",
             "latitude": data['latitude'], "longitude": data['longitude'],
             "images": [img['url'] for img in data['images']] if data['images'] else [''],
             }
@@ -135,6 +150,8 @@ def get_comments(request):
     parkID = request.GET.get("parkID", "")
     comments = []
     data = pymongo.MongoDB.comments.find_one({"parkId": parkID})
+    if not data or 'comments' not in data:
+        return response(0, "ok", comments)
 
     sorted_data = sorted(data['comments'], key=lambda x: x["time"], reverse=True)
 
@@ -152,21 +169,21 @@ def get_comments(request):
     return response(0, "ok", comments)
 @require_http_methods('POST')
 def add_comment(request):
+    print(request)
     if str(request.body, 'utf-8') == "":
         return response(1, "parameters cannot be null")
 
     comment = {
-        "parkId": "", "user": "", "rating": 0,
-        "time": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        "author_name": "", "rating": 0,
+        "time": int(time.time()),
         "text": "",
     }
 
-    param = json.loads(request.body)
+    param = json.loads(request.body)['data']
+    # print(param)
 
     if "parkId" not in param or param["parkId"] == "":
         return response(1, "parkId is required")
-    comment['parkId'] = param['parkId']
-
     park = pymongo.MongoDB.ca_np.find_one({"id": param['parkId']})
 
     if park is None:
@@ -174,7 +191,7 @@ def add_comment(request):
 
     if "user" not in param or param["user"] == "":
         return response(1, "user is required")
-    comment['user'] = param['user']
+    comment['author_name'] = param['user']
 
     if "rating" not in param or param["rating"] == "":
         return response(1, "rating is required")
@@ -184,15 +201,17 @@ def add_comment(request):
         return response(1, "description is required")
     comment['text'] = param['text']
 
-    pymongo.MongoDB.comments.insert_one(comment)
+    # pymongo.MongoDB.comments.insert_one(comment)
+    pymongo.MongoDB.comments.update_one({"parkId": param['parkId']}, {"$push": {"comments": comment}})
+    print(type(park['rating']), type(park['comments']))
+    avg_rating = round(float(((float(park['rating']) * park['comments']) + comment['rating'])/(park['comments']+1)), 1)
+    print(avg_rating)
 
-    avgRating = int(((park['rating'] * park['comments']) + comment['rating'])/(park['comments']+1))
-    pymongo.MongoDB.ca_np.update_one({"id": param['parkId']}, {'$inc':{"comments":1}, "$set":{"rating":avgRating}})
+    pymongo.MongoDB.ca_np.update_one({"id": param['parkId']}, {'$inc':{"comments":1}, "$set":{"rating":avg_rating}})
 
     # If any comment is updated, delete the cache
-    pyredis.setParkDetail(param['parkId'])
+    pyredis.deleteParkDetail(param['parkId'])
     return response(0, "ok")
-
 
 # get park opening hours
 @require_http_methods('GET')
@@ -210,7 +229,7 @@ def search_park_opening_hours(request):
     data = pymongo.MongoDB.ca_np.find_one({"id": id})
 
     park = {"fullName": data['fullName'], "opening_hours": data['operatingHours'][-1]['standardHours']}
-    print("find by mongo.")
+    # print("find by mongo.")
     return response(0, "ok", park)
 
 # get park entrance fee
@@ -273,7 +292,6 @@ def search_park_activities(request):
     print("find by mongo.")
     return response(0, "ok", park)
 
-
 # get park recent released news
 @require_http_methods('GET')
 def search_park_news(request):
@@ -281,6 +299,9 @@ def search_park_news(request):
     park = []
 
     park_code = pymongo.MongoDB.ca_np.find_one({"id": parkID}, {'parkCode':1})
+    if "parkCode" not in park_code or park_code is None:
+        return response(0, "ok", park)
+
     data = pymongo.MongoDB.newsreleases.find({"relatedParks":{"$elemMatch": {'parkCode':park_code['parkCode']}}})
     # print("news", data)
     if not data:
@@ -307,7 +328,7 @@ def search_park_thingstodo(request):
     # print("thingstodo", data)
 
     if not data:
-        return response(1, "no new released", {})
+        return response(1, "no things listed", {})
 
     park = {"fullName": data['relatedParks'][0]['fullName'],
             "title": data['title'],

@@ -9,6 +9,7 @@ urlpatterns = [
     path('/get_image', apps.get_image),
     path('/get_park_detail', apps.get_park_detail),
     path('/get_comments', apps.get_comments),
+    path('/add_comment', apps.add_comment),
     path('/search_park_opening_hours', apps.search_park_opening_hours),
     path('/search_park_entrance_fee', apps.search_park_entrance_fee),
     path('/search_park_directions', apps.search_park_directions),

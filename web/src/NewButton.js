@@ -52,7 +52,7 @@ const NewButton = () => {
                 <Row><Col span={24}><Input size="small"/></Col></Row>
 
                 <Row><Col span={3} style={{ marginTop: '1em' }}>rating: </Col></Row>
-                <Row><Col span={24}><Input size="small"/><Rate /></Col></Row>
+                <Row><Col span={24} style={{ marginTop: '1em' }}><Rate /></Col></Row>
 
                 <Row><Col span={3} style={{ marginTop: '1em' }}>address: </Col></Row>
                 <Row><Col span={24}><Input size="small"/></Col></Row>

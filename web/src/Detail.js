@@ -102,6 +102,8 @@ const Comments =(parkID) => {
 
     const commentAddEventHandle = () => {
         getCommentList(parkID);
+        // const data = comments.map(item=>item);
+        // setComs()comments
     }
 
     const getCommentList = (id) =>{
@@ -138,7 +140,7 @@ const Comments =(parkID) => {
 }
 
 
-const CommentButton = ({parkID, commentAddEventCallbackFunc})=>{
+const CommentButton = ({parkID, addEventCallbackFunc})=>{
     const [show, setShow] = useState(false);
 
     const [user, setUser] = useState("");
@@ -157,11 +159,11 @@ const CommentButton = ({parkID, commentAddEventCallbackFunc})=>{
     }
 
     const handelOkModal = () =>{
-        // console.log("user:", user);
-        // console.log("ratings:", rating);
-        // console.log("text:", text);
+        console.log("parkId:", parkID.parkID);
+        console.log("ratings:", rating);
+        console.log("text:", text);
 //        comments.push({user:user, rating:rating, time:"", text:text});
-        const param = {parkId:parkID, user:user, rating:rating, text:text}
+        const param = {parkId:parkID.parkID, user:user, rating:rating, text:text}
         addComment(param);
     }
 
@@ -187,16 +189,16 @@ const CommentButton = ({parkID, commentAddEventCallbackFunc})=>{
             <Button tone="primary" size="small" onClick={handelShowModal}>Comment</Button>
             <Modal title="comment" open={show} onOk={handelOkModal} onCancel={handelCancelModal}>
                 <Row>
-                    <Col span={3}>User Name: </Col>
+                    <Col span={5}>User Name: </Col>
                     <Col span={10}><Input size="small" value={user} onChange={e=>{ e.persist(); setUser(e.target.value); }} /></Col>
                 </Row>
                 <Row>
-                    <Col span={3}>Rating: </Col>
-                    <Col span={18}><Rate value={rating} onChange={setRating}/></Col>
+                    <Col span={5} style={{ marginTop: "3px" }}>Rating: </Col>
+                    <Col span={18} style={{ marginTop: "3px" }}><Rate value={rating} onChange={setRating}/></Col>
                 </Row>
                 <Row>
-                    <Col span={3}>Comments: </Col>
-                    <Col span={18}><TextArea row={4} value={text} onChange={e => {e.persist(); setText(e.target.value);}}/></Col>
+                    <Col span={5} style={{ marginTop: "3px" }}>Comments: </Col>
+                    <Col span={18} style={{ marginTop: "3px" }}><TextArea row={4} value={text} onChange={e => {e.persist(); setText(e.target.value);}}/></Col>
                 </Row>
             </Modal>
         </div>

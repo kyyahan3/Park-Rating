@@ -16,7 +16,7 @@ const App = () => {
     return (
     <BrowserRouter>
         <Layout>
-            <Head/ >
+            <Head></Head>
 
             <Routes>
                 <Route path='/' element = {<Body windowHeight={bodyHeight} />} />
@@ -24,11 +24,10 @@ const App = () => {
 
             </Routes>
 
-            <Footer/ >
+            <Footer></Footer>
         </Layout>
     </BrowserRouter>
-
     );
 }
-           // <Body windowHeight={500}/ >
+
 export default App;
