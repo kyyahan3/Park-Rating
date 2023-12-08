@@ -15,8 +15,13 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
 `python3 manage.py runserver localhost:8081`
 #### database
 - enter the folder with docker-compose.yml and start dockers `docker-compse up -d`
-- mongodb: `docker-compose exec mongodb bash` or `docker-compose exec mongodb mongosh`
-- redis: `docker-compose exec redis redis-cli`. we can use `keys *` to check what was stored in redis DB, but this is not recommended when the db is large.
+- mongodb:
+  - `docker-compose exec mongodb mongosh`
+  - import data: 
+    - `docker-compose exec mongodb bash` 
+    - and then `mongoimport --db <db_name> --collection <collection_name> --file <file_path> --jsonArray`. For the ca_np.json data, the parameters will be "npdatabase", "ca_np" and "ca_np.json" respectively. 
+- redis: `docker-compose exec redis redis-cli`. 
+  - we can use `keys *` to check what was stored in redis DB, but this is not recommended when the db is large.
 #### .env
 To use the Google Map feature, we need to have an API key. create your `.env` like `.env.example` and set the key values.
 ## Main points

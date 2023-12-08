@@ -1,0 +1,16 @@
+version: '1.0'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - /Users/yahan/Library/CloudStorage/OneDrive-Vanderbilt/vandy/3-semester/Nosql/final_proj:/ds5760/mongo
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+
