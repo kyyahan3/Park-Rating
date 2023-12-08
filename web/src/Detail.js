@@ -124,9 +124,9 @@ const Comments =(parkID) => {
                     <List.Item>
                         <Typography>
                             <Paragraph>
-                                <span> User: {item.author_name}</span>
-                                <span style={{marginLeft:"20px"}}> Rating: {item.rating}</span>
-                                <span style={{marginLeft:"20px"}}> Time: {item.time}</span>
+                                <span><b>User: {item.author_name}</b> </span>
+                                <span style={{marginLeft:"45px"}}> Rating: {item.rating}</span>
+                                <span style={{marginLeft:"45px"}}> Time: {item.time}</span>
                             </Paragraph>
                             <Text>{item.text}</Text>
                         </Typography>
