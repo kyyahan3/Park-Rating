@@ -1,8 +1,9 @@
+from django.conf import settings
 import redis, json
 
 conn_pool = redis.ConnectionPool(
-    host='127.0.0.1',
-    port=6379,
+    host=settings.DATABASES['Redis']['HOST'], # 127.0.0.1'
+    port=int(settings.DATABASES['Redis']['PORT']),
     decode_responses=True,
 )
 

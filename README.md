@@ -12,7 +12,7 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
 - Create a application in the project : `python3 manage.py startapp {name}`, name is `app` for this project. 
 - start the server: <br>
 `cd server/`<br>
-`python3 manage.py runserver localhost:8081`
+`python3 manage.py runserver localhost:8081`; add `--settings=server.settings_dev` for using development settings for better efficiency 
 #### database
 - enter the folder with docker-compose.yml and start dockers `docker-compse up -d`
 - mongodb:
@@ -66,7 +66,20 @@ To use the Google Map feature, we need to have an API key. create your `.env` li
 ## Other information
 UI component package: Ant Design (we used components like Layout, Button, Rate, Input textbox, Card, List, Typography, etc.)<br>
 `pnpm install axios` is a Promise based HTTP client for the browser and node.js
+- `pnpm run build` : to make the packages and configuration smaller for transfer
 
 
+### move to docker
+1. download nginx image and create a container
+`docker pull nginx:1.21.6`
+`docker images -a`: check all the images on local
+`docker run -itd --name prd_svc_web nginx:1.21.6`
+2. copy front-end code into the container
+`docker cp ./build prd_svc_web:/home/`
+3. enter the svc_web container and execute command
+`docker exec -it prd_svc_web /bin/bash` : enter the container
+`cd /home/build`
+`cp web.conf /etc/nginx/conf.d/`
+`nginx -s reload`
 
 

@@ -156,13 +156,11 @@ def get_comments(request):
     sorted_data = sorted(data['comments'], key=lambda x: x["time"], reverse=True)
 
     for com in sorted_data:
-        human_time = datetime.fromtimestamp(int(com['time']), timezone.utc)
-
         comments.append({
             "parkId": parkID,
             "author_name": com['author_name'],
             "rating": float(com['rating']),
-            "time": human_time.strftime('%Y-%m-%d %H:%M'),
+            "time": com['time'], # translate the timestamp at front end
             "text": com['text'],
         })
 
@@ -312,7 +310,7 @@ def search_park_news(request):
             "parkId": parkID,
             "title": x['title'],
             "abstract": x['abstract'],
-            "time": x["releaseDate"][:16]
+            "time": datetime.strptime(x["releaseDate"][:18], "%Y-%m-%d %H:%M:%S").timestamp()
         })
 
     print("find by mongo.")

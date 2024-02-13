@@ -5,6 +5,7 @@ import axios from 'axios';
 import Maps from "./Map";
 
 import {no_image} from './constants/global';
+import moment from "moment";
 
 const {Content} = Layout;
 const {Paragraph, Text} = Typography;
@@ -128,7 +129,7 @@ const Comments =(parkID) => {
                             <Paragraph>
                                 <span><b>User: {item.author_name}</b> </span>
                                 <span style={{marginLeft:"45px"}}> Rating: {item.rating}</span>
-                                <span style={{marginLeft:"45px"}}> Time: {item.time}</span>
+                                <span style={{marginLeft:"45px"}}> Time: {moment(item.time*1000).format("YYYY-MM-DD HH:mm")}</span>
                             </Paragraph>
                             <Text>{item.text}</Text>
                         </Typography>
@@ -233,7 +234,7 @@ const News = (parkID) => {
                         <Typography>
                             <Paragraph>
                                 <Row><h5>Title: {item.title}</h5></Row>
-                                <Row> Time: {item.time}</Row>
+                                <Row> Time: {moment(item.time*1000).format("YYYY-MM-DD HH:mm")}</Row>
                             </Paragraph>
                             <Text>{item.abstract}</Text>
                         </Typography>
