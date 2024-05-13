@@ -6,7 +6,7 @@ import NewButton from './NewButton'
 const {Header} = Layout;
 
 
-const Head = () => {
+const Head = ({newEventCallback}) => {
     const [menus, setMenus]= useState([ {title:"Parks", path:"/"},{title:"About",path:"/"} ]);
     const navigate = useNavigate();
 
@@ -41,7 +41,7 @@ const Head = () => {
                     onClick={menuClick}
                     />
                 </div>
-                <NewButton />
+                <NewButton newEvent={newEventCallback}/>
 
             </Header>
 

@@ -26,11 +26,13 @@ const Detail = ({windowHeight}) =>{
     //  get park detail
     const getParksDetail = (id) => {
         axios.get('/api/get_park_detail', {params:{id:id}}).then((res)=>{
-            // console.log(id);
-           // console.log(res.data.data);
-            setPark(res.data.data);
+          if(res.data.code != 0){
+            message.error(res.data.message);
+            return;
+          }
+          setPark(res.data.data);
         }).catch((error)=>{
-            console.log(error);
+          console.log(error.message);
         });
     };
 
@@ -112,7 +114,7 @@ const Comments =(parkID) => {
             // console.log(parkID);
             setComs(res.data.data);
         }).catch((error)=>{
-            console.log(error);
+            message.error(error.message);
         });
 
     };
@@ -169,19 +171,18 @@ const CommentButton = ({parkID, addEventCallbackFunc})=>{
     }
 
     const addComment = (param) =>{
-        axios.post("/api/add_comment", {data: param}, {header:{"Content-Type":"application/json"}}).then((res)=>{
-            console.log(res);
-            if(res.data.code != 0){
-                message.error(res.data.message);
-                return
-            }
-            addEventCallbackFunc();
-            setShow(false);
+      axios.post("/api/add_comment", {data: param}, {header:{"Content-Type":"application/json"}}).then((res)=>{
+        console.log(res);
+        if(res.data.code != 0){
+          message.error(res.data.message);
+          return
+        }
+        addEventCallbackFunc();
+        setShow(false);
 
-        }).catch((error)=>{
-            message.error(error);
-            console.log(error)
-        })
+      }).catch((error)=>{
+        message.error(error.message);
+      })
 
     }
 

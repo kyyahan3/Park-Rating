@@ -3,31 +3,40 @@ import GoogleMapReact from "google-map-react";
 
 // Map component
 
-const Maps = ({latlng, zoom}) =>{
-    const [key] = useState(process.env.REACT_APP_MAP_API);
+const Maps = ({latlng, zoom, onClick=undefined, moveable=false}) =>{
+  const [key] = useState(process.env.REACT_APP_MAP_API);
+  const [intLatLng, setLatLng] = useState(latlng);
+  const [inZoom, setZoom] = useState(zoom);
 
-    const [intLatLng, setLatLng] = useState(latlng);
-    const [inZoom, setZoom] = useState(zoom);
+  useEffect(()=>{
+    setLatLng(latlng)
+  }, [latlng]);
 
-    useEffect(()=>{
-        setLatLng(latlng)
-    }, [latlng]);
+  const handleOnClick = ({x, y, lat, lng, event}) =>{
+    if(moveable){
+      setLatLng({lat:lat, lng:lng});
+    }
+    if(onClick){
+      onClick(lat, lng);
+    }
+  }
 
-    return(
-        <div style={{height:'300px'}}>
-            <GoogleMapReact
-                bootstrapURLKeys={{key}}
-                center = {intLatLng}
-                defaultZoom = {inZoom}
-            >
-                <ReactMapPointComponent
-                    lat={intLatLng.lat}
-                    lng={intLatLng.lng}
-                    text = "My Marker"
-                />
-            </GoogleMapReact>
-        </div>
-    )
+  return(
+    <div style={{height:'300px'}}>
+      <GoogleMapReact
+        onClick = {handleOnClick}
+        bootstrapURLKeys = {{key}}
+        center = {intLatLng}
+        defaultZoom = {inZoom}
+      >
+        <ReactMapPointComponent
+          lat={intLatLng.lat}
+          lng={intLatLng.lng}
+          text = "My Marker"
+        />
+      </GoogleMapReact>
+    </div>
+  )
 
 }
 
@@ -45,4 +54,5 @@ const ReactMapPointComponent = () => {
         <div style={markerStyle}/>
     );
 }
+
 export default Maps;

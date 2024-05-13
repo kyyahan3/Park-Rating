@@ -23,27 +23,26 @@ def response(code: int, message: str, data: any = None):
 @require_http_methods('POST')
 def add_park(request):
     param = json.loads(request.body.decode('utf-8'))
-
+    # print(param)
     if str(param) == '':
         return response(1, "parameters cannot be null.")
 
     park = {
-        "id": "", "fullName": "", "description": "", "states": "", "latitude": "", "longitude": "",
+        "fullName": "", "description": "", "states": "", "latitude": "", "longitude": "",
         "images": [], "addtime": int(time.time())
     }
 
     # required parameters
-    if 'fullName' not in param or 'description' not in param or 'state' not in param or "rating" not in param:
-        return response(1, "fullName, state, rating and description are required.")
-    park['id'], park['fullName'], park['states'] = param['id'], param['fullName'], param['state']
-    park['description'], park['rating'] = param['description'], param['rating']
+    if 'title' not in param or 'desc' not in param or "rating" not in param:
+        return response(1, "Park name, rating and description are required.")
+    park['fullName'], park['description'], park['rating'] = param['title'], param['desc'], param['rating']
 
     # optional parameters
-    if 'latitude' in param and 'longitude' in param:
-        park['latitude'], park['longitude'] = param['latitude'], param['longitude']
+    if 'lat' in param and 'lng' in param:
+        park['latitude'], park['longitude'] = param['lat'], param['lng']
 
-    if 'images' in param:
-        park['images'] = param['images']
+    if 'imgs' in param:
+        park['images'] = param['imgs']
 
     ret = pymongo.MongoDB.ca_np.insert_one(park)
     # delete in cache
@@ -67,6 +66,19 @@ def upload_image(request):
 
     ret = pymongo.MongoDB.images.insert_one({"md5": md5, "type": filetype, "body": binary.Binary(body)})
     return response(0, "ok", {"id": str(ret.inserted_id)})
+
+# upload a image II
+pics = {}
+@require_http_methods('POST')
+def upload(request):
+    f = request.FILES['file']
+    fileName = "{}{}".format(f.name, time.time())
+    hFileName = hashlib.md5(fileName.encode()).hexdigest()
+    print(hFileName)
+    print(f.content_type)
+
+    pics[hFileName] = {"type": f.content_type, "body": f.read()}
+    return response(0, "ok", {"id": hFileName})
 
 
 # get image
@@ -94,13 +106,28 @@ def get_park_list(request):
     print("park_list find by mongo.")
 
     for x in data:
-        # print(x)
+        imageUrl = []
+
+        # Check if 'images' is a list and proceed accordingly
+        if isinstance(x['images'], list):
+            for img in x['images']:
+                # Check if each image dictionary has a 'url' key
+                if 'url' in img:
+                    imageUrl.append(img['url'])
+
+        if not "id" in x:
+            x["id"] = str(x["_id"])
+        
         parks.append({
-            "id": x['id'], "fullName": x['fullName'],
-            "rating": x['rating'], "state": x['states'],
+            "_id": str(x['_id']),  
+            "id": x['id'],
+            "fullName": x['fullName'],
+            "rating": x['rating'], 
+            "state": x['states'],
             "description": x['description'],
-            "imageUrl": [img['url'] for img in x['images']]
+            "imageUrl": imageUrl
         })
+
     pyredis.setParkList(parks)
     return response(0, "ok", parks)
 
@@ -117,8 +144,10 @@ def get_park_detail(request):
 
     # else, read from mongo. If found, updates in the cache and return the content
     data = pymongo.MongoDB.ca_np.find_one({"id": id})
-
-    # count the number of comments in the park
+    if not data:
+        data = pymongo.MongoDB.ca_np.find_one({"_id": ObjectId(id)})
+        print("data:", data)
+    
     entrance_fee = data['entranceFees'] if "entranceFees" in data else []
     if len(entrance_fee) > 0:
         entrance_fee = entrance_fee[0]['cost']
@@ -130,7 +159,15 @@ def get_park_detail(request):
     else:
         comments_num = 0
 
-    park = {"id": data['id'], "fullName": data['fullName'],
+    # Check if 'images' is a list and proceed accordingly
+    imageUrl = []
+    if isinstance(data['images'], list):
+        for img in data['images']:
+            # Check if each image dictionary has a 'url' key
+            if 'url' in img:
+                imageUrl.append(img['url'])
+
+    park = {"id": str(data['_id']), "fullName": data['fullName'],
             "rating": data['rating'], "comments": comments_num,
             "description": data['description'], "state": data['states'],
             "address": data['directionsInfo'] if 'directionsInfo' in data else "",
@@ -138,8 +175,9 @@ def get_park_detail(request):
             "entrance_fee": entrance_fee,
             "opening_hours": format_opening_hours(data['operatingHours'][-1]['standardHours']) if "operatingHours" in data else "",
             "latitude": data['latitude'], "longitude": data['longitude'],
-            "images": [img['url'] for img in data['images']] if data['images'] else [''],
+            "images": imageUrl,
             }
+    
     pyredis.setParkDetail(id, park)
     print("find by mongo.")
     return response(0, "ok", park)
@@ -165,6 +203,7 @@ def get_comments(request):
         })
 
     return response(0, "ok", comments)
+
 @require_http_methods('POST')
 def add_comment(request):
     print(request)
@@ -242,7 +281,7 @@ def search_park_entrance_fee(request):
         return response(0, "ok", detail)
 
     # else, read from mongo. If found, updates in the cache and return the content
-    data = pymongo.MongoDB.ca_np.find_one({"id": id})
+    data = pymongo.MongoDB.ca_np.find_one({"_id": id})
 
     entrance_fee = data['entranceFees']
     if len(entrance_fee)>0:
@@ -266,7 +305,7 @@ def search_park_directions(request):
         return response(0, "ok", detail)
 
     # else, read from mongo. If found, updates in the cache and return the content
-    data = pymongo.MongoDB.ca_np.find_one({"id": id})
+    data = pymongo.MongoDB.ca_np.find_one({"_id": id})
 
     park = {"fullName": data['fullName'], "direction_info": data['directionsInfo']}
     print("find by mongo.")
@@ -296,8 +335,10 @@ def search_park_news(request):
     parkID = request.GET.get("parkID", "")
     park = []
 
-    park_code = pymongo.MongoDB.ca_np.find_one({"id": parkID}, {'parkCode':1})
-    if "parkCode" not in park_code or park_code is None:
+    park_code = pymongo.MongoDB.ca_np.find_one({"_id": parkID}, {'parkCode':1})
+    if not park_code:
+        return response(0, "ok", park)
+    if "parkCode" not in park_code:
         return response(0, "ok", park)
 
     data = pymongo.MongoDB.newsreleases.find({"relatedParks":{"$elemMatch": {'parkCode':park_code['parkCode']}}})

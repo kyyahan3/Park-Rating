@@ -10,24 +10,30 @@ import Detail from './Detail';
 import Footer from './Foot';
 
 const App = () => {
-//  declare the bodyHeight is equal to window_Height - HeaderHeight -64
-    const [bodyHeight]=useState(window.innerHeight -64 -64);
+  //  declare the bodyHeight is equal to window_Height - HeaderHeight -64
+  const [bodyHeight, setBodyHeight]=useState(window.innerHeight -64 -64);
+  // listen to the new park added
+  const [newEvent, setNewEvent] = useState(0);
+  
+  const newEventHandle=(eventValue)=>{
+    setNewEvent(eventValue);
+  }
 
-    return (
-    <BrowserRouter>
-        <Layout>
-            <Head></Head>
+  return (
+  <BrowserRouter>
+    <Layout>
+      <Head newEventCallback={newEventHandle} />
 
-            <Routes>
-                <Route path='/' element = {<Body windowHeight={bodyHeight} />} />
-                <Route path='/detail' element={<Detail windowHeight={bodyHeight} />} />
+      <Routes>
+          <Route path='/' element = {<Body windowHeight={bodyHeight} newEventNotice={newEvent}/>} />
+          <Route path='/detail' element={<Detail windowHeight={bodyHeight} />} />
 
-            </Routes>
+      </Routes>
 
-            <Footer></Footer>
-        </Layout>
-    </BrowserRouter>
-    );
+      <Footer></Footer>
+    </Layout>
+  </BrowserRouter>
+  );
 }
 
 export default App;
