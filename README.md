@@ -74,16 +74,31 @@ UI component package: Ant Design (we used components like Layout, Button, Rate, 
 
 
 ### move to docker
+#### Front-end
 1. download nginx image and create a container
-`docker pull nginx:1.21.6`
-`docker images -a`: check all the images on local
-`docker run -itd --name prd_svc_web nginx:1.21.6`
-2. copy front-end code into the container
-`docker cp ./build prd_svc_web:/home/`
-3. enter the svc_web container and execute command
-`docker exec -it prd_svc_web /bin/bash` : enter the container
-`cd /home/build`
-`cp web.conf /etc/nginx/conf.d/`
-`nginx -s reload`
+`docker pull nginx:1.21.6`<br>
+`docker images -a`: check all the images on local<br>
+`docker run -itd --name prd_svc_web nginx:1.21.6`<br>
+2. copy front-end code into the container<br>
+`docker cp ./build prd_svc_web:/home/`<br>
+3. enter the svc_web container and execute command<br>
+`docker exec -it prd_svc_web /bin/bash` : enter the container<br>
+`cd /home/build`<br>
+`cp web.conf /etc/nginx/conf.d/`<br>
+`nginx -s reload`<br>
+received notice: `2024/05/14 06:43:35 [notice] 48#48: signal process started`
+4. commit the image
+`docker commit <CONTAINER ID> prd_svc_web:001`
 
+#### Back-end
+1. download image
+`docker run -itd --name prd_svc_app python:3.11.0`<br>
+`docker cp ~/opt/anaconda3/bin/pip prd_svc_app:/root/`<br>
+`cd server` `pip3 freeze > requirements.txt`<br>
+`docker cp ./server prd_svc_app:/home`<br>
+`chmod 777 start.sh` -> `sh start.sh` <br>
+`docker commit <CONTAINER ID> prd_svc_app:001`<br>
+
+#### Database
+commit derectly
 
