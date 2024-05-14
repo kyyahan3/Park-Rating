@@ -9,21 +9,21 @@ import {no_image} from './constants/global';
 
 
 // body overall component
-const Body = ({windowHeight, newEventNotice}) => {
+const Parks = ({windowHeight}) => {
   return (
     <Content style={{minHeight: windowHeight}}>
-      <Parks newNotice={newEventNotice}/>
+      <ParkContent/>
     </Content>
   );
 }
 
 // list content component
-const Parks = ({newNotice}) =>{
+const ParkContent = () =>{
   const [parks, setParks] = useState([]);
 
   useEffect(()=>{
     getParks();
-  }, [newNotice]);
+  }, []);
 
 //  get park list for home page
   const getParks = () => {
@@ -62,6 +62,6 @@ const Parks = ({newNotice}) =>{
 
 }
 
-export default Body;
+export default Parks;
 
 

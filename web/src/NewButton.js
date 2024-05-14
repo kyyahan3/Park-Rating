@@ -4,7 +4,6 @@ import {Button, Modal, Row, Col, Input, Rate, Upload, message} from "antd";
 import Maps from './Map';
 import axios from 'axios';
 
-
 const {TextArea} = Input;
 
 const getBase64 = (file) => new Promise((resolve, reject) =>{
@@ -62,7 +61,7 @@ const NewButton = ({newEvent}) => {
 
   const addCamp = (param) =>{
     axios.post("/api/add_park", param, {headers:{'Content-Type': 'application/json'}}).then((res) =>{
-      if(res.status.code != 0){
+      if(res.data.code != 0){
         message.error(res.data.message);
         return ;
       }
@@ -73,6 +72,7 @@ const NewButton = ({newEvent}) => {
 
       setShow(false);
     }).catch((err) =>{
+
       message.error(err.message);
     })
   };
@@ -114,10 +114,10 @@ const NewButton = ({newEvent}) => {
   );
 
   return(
-    <div style = {{float:"right", display:"black", width:"100px"}}>
+    <div style = {{float:"left", display:"black", width:"100px"}}>
       <Button style={{
-        backgroundColor:'transparent',
-        color:"rgba(255, 255, 255)"
+        backgroundColor:'#E0E0E0',
+        color:"#808080"
       }}
       size="large"
       onClick={handleShowModal}

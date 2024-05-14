@@ -6,13 +6,13 @@ const {Footer} = Layout;
 const Foot = () => {
     return (
 
-            <Footer style={{
-                    textAlign:'center',
-                    // color:'#fff',
-                    // backgroundColor:'#7dbcea'
-            }}>
-
-            </Footer>
+      <Footer style={{
+        textAlign:'center',
+        // color:'#fff',
+        // backgroundColor:'#7dbcea'
+      }}>
+        
+      </Footer>
 
     );
 }

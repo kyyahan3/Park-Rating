@@ -5,7 +5,8 @@ import { Layout } from 'antd';
 import {BrowserRouter, Routes, Route } from 'react-router-dom';
 import "./index.css";
 import Head from './Head';
-import Body from './Body';
+import Parks from './Parks';
+import MyParks from './MyParks';
 import Detail from './Detail';
 import Footer from './Foot';
 
@@ -22,11 +23,14 @@ const App = () => {
   return (
   <BrowserRouter>
     <Layout>
-      <Head newEventCallback={newEventHandle} />
+      <Head />
 
       <Routes>
-          <Route path='/' element = {<Body windowHeight={bodyHeight} newEventNotice={newEvent}/>} />
+          <Route path='/parks' element = {<Parks windowHeight={bodyHeight} />} />
+          <Route path='/my-parks' element = {<MyParks windowHeight={bodyHeight} newEventCallback={newEventHandle}/>} />
           <Route path='/detail' element={<Detail windowHeight={bodyHeight} />} />
+          {/* Ensure there's a route for the root "/" */}
+          <Route path="/" element = {<Parks windowHeight={bodyHeight}/>} />
 
       </Routes>
 

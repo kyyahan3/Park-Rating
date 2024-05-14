@@ -19,7 +19,7 @@ def response(code: int, message: str, data: any = None):
     return HttpResponse(json.dumps(body, sort_keys=True, ensure_ascii=False))
 
 
-# add a new park
+# user add a new park
 @require_http_methods('POST')
 def add_park(request):
     param = json.loads(request.body.decode('utf-8'))
@@ -44,9 +44,9 @@ def add_park(request):
     if 'imgs' in param:
         park['images'] = param['imgs']
 
-    ret = pymongo.MongoDB.ca_np.insert_one(park)
+    ret = pymongo.MongoDB.ca_np_tmp.insert_one(park)
     # delete in cache
-    pyredis.deleteParkList()
+    pyredis.deleteTmpParkList()
 
     return response(0, "ok", {"id": str(ret.inserted_id)})
 
@@ -95,16 +95,27 @@ def get_image(request):
 # get park list
 @require_http_methods('GET')
 def get_park_list(request):
+    tmp = request.GET.get("tmp", "false").lower() == 'true'  # Convert query parameter to boolean
+    
+    if not tmp:
+      # check in redis first
+      data = pyredis.getParkList()
+      if data is not None:
+          print("park_list find by redis.")
+          return response(0, "ok", data)
+      data = pymongo.MongoDB.ca_np.find({}, {"id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
+      print("park_list find by mongo.")
+
+    else:
+      # check in redis first
+      data = pyredis.getTmpParkList()
+      if data is not None:
+          print("tmp_park_list find by redis.")
+          return response(0, "ok", data)
+      data = pymongo.MongoDB.ca_np_tmp.find({}, {"_id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
+      print("tmp_park_list find by mongo.")
+
     parks = []
-    # check in redis first
-    data = pyredis.getParkList()
-    if data is not None:
-        print("park_list find by redis.")
-        return response(0, "ok", data)
-
-    data = pymongo.MongoDB.ca_np.find({}, {"id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
-    print("park_list find by mongo.")
-
     for x in data:
         imageUrl = []
 
@@ -118,8 +129,7 @@ def get_park_list(request):
         if not "id" in x:
             x["id"] = str(x["_id"])
         
-        parks.append({
-            "_id": str(x['_id']),  
+        parks.append({ 
             "id": x['id'],
             "fullName": x['fullName'],
             "rating": x['rating'], 
@@ -128,25 +138,28 @@ def get_park_list(request):
             "imageUrl": imageUrl
         })
 
-    pyredis.setParkList(parks)
+    pyredis.setParkList(parks) if not tmp else pyredis.setTmpParkList(parks)
     return response(0, "ok", parks)
 
-
+# get park details by id
 @require_http_methods('GET')
 def get_park_detail(request):
     id = request.GET.get("id", "")
+    tmp = request.GET.get("tmp", "false").lower() == 'true'  # Convert query parameter to boolean
     park = {}
     # check in redis first. return if exists
-    detail = pyredis.getParkDetail(id)
+    detail = pyredis.getParkDetail(id, tmp)
     if detail is not None:
         print("find by redis.")
         return response(0, "ok", detail)
 
     # else, read from mongo. If found, updates in the cache and return the content
-    data = pymongo.MongoDB.ca_np.find_one({"id": id})
-    if not data:
-        data = pymongo.MongoDB.ca_np.find_one({"_id": ObjectId(id)})
-        print("data:", data)
+    if not tmp:
+        # find in the main DB
+        data = pymongo.MongoDB.ca_np.find_one({"id": id})
+    else:
+        # find in the temp DB
+        data = pymongo.MongoDB.ca_np_tmp.find_one({"_id": ObjectId(id)})
     
     entrance_fee = data['entranceFees'] if "entranceFees" in data else []
     if len(entrance_fee) > 0:
@@ -178,7 +191,7 @@ def get_park_detail(request):
             "images": imageUrl,
             }
     
-    pyredis.setParkDetail(id, park)
+    pyredis.setParkDetail(id, park, tmp)
     print("find by mongo.")
     return response(0, "ok", park)
 
