@@ -100,5 +100,18 @@ received notice: `2024/05/14 06:43:35 [notice] 48#48: signal process started`
 `docker commit <CONTAINER ID> prd_svc_app:001`<br>
 
 #### Database
-commit derectly
+commit directly
+
+#### Docker Upload
+1. Save all images on local like this `docker save -o prd_svc_app-002-withredis.tar prd_svc_app:002-withredis`
+2. Upload to instance `scp -i ~/.ssh/{user name} prd_svc_redis-001.tar {user naem}@{external IP}:~/`, `~/` is the destination folder in the instance
+3. Load images on GCP `docker load -i {image file name}`
+
+### Set up on GCP
+1. Create a new instance
+2. Generate a key on local <br>`ssh-keygen -t rsa -f ~/.ssh/{user name} -C {user name}`<br>
+   Show key `cat ~/.ssh/{user name}.pub` and paste it into the Metadata-ssh key on GCP
+3. SSH into GCP on local<br>
+   Get the external IP of the instance and use the cmd `ssh -i ~/.ssh/{user name} {user name}@{external IP}`
+4. [Install Docker](https://docs.docker.com/engine/install/debian/#set-up-the-repository)
 
