@@ -1,20 +1,21 @@
 ## Project set up
-#### web
+### web
 - install [nodejs](https://nodejs.org/en/download)
 - create a react app: `npx create-react-app web`<br>
 Main js code are in `src` folder and `index.js` is the project entry file. Dependencies are in `node_modules` folder recorded in package.json.
 - activate front-end:<br>
 `cd web/`<br>
 `pnpm start` or `npm start`
-#### server
-- ` pip install Django`
+### server
+- `pip install Django`
 - create a django server: `django-admin startproject server`. 
 - Create a application in the project : `python3 manage.py startapp {name}`, name is `app` for this project. 
 - start the server: <br>
 `cd server/`<br>
 `python3 manage.py runserver localhost:8081`; add `--settings=server.settings_dev` for using development settings for better efficiency 
-#### database
-- enter the folder with docker-compose.yml and start dockers `docker-compse up -d`
+### database
+#### Import data
+- `cd` Enter the folder with docker-compose.yml and start dockers `docker-compse up -d`
 - mongodb:
   - `docker-compose exec mongodb mongosh`
   - import data: 
@@ -22,7 +23,10 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
     - and then `mongoimport --db <db_name> --collection <collection_name> --file <file_path> --jsonArray`. For the ca_np.json data, the parameters will be "npdatabase", "ca_np" and "ca_np.json" respectively. 
 - redis: `docker-compose exec redis redis-cli`. 
   - we can use `keys *` to check what was stored in redis DB, but this is not recommended when the db is large.
-#### .env
+#### Database operations
+- MongoDB:
+  - `docker exec -it <containerName> mongosh`  containerName is final_proj-mongodb-1 in my case.
+### .env
 To use the Google Map feature, we need to have an API key. create your `.env` like `.env.example` and set the key values.
 ## Main points
 1. System Architecture:
