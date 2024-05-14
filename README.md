@@ -110,13 +110,21 @@ commit directly
    Get the external IP of the instance and use the cmd `ssh -i ~/.ssh/{user name} {user name}@{external IP}`
 4. [Install Docker](https://docs.docker.com/engine/install/debian/#set-up-the-repository)
 
-### Docker Set up in GCP 
+### Docker set up on GCP 
 1. Upload images
   - Save all images on local like this `docker save -o prd_svc_app-002-withredis.tar prd_svc_app:002-withredis`
   - Upload to instance `scp -i ~/.ssh/{user name} prd_svc_redis-001.tar {user naem}@{external IP}:~/`, `~/` is the destination folder in the instance
   - Load images on GCP `docker load -i {image file name}`
 2. Create a container network
-  - `docker network create --driver bridge --subnet=172.18.100.0/24 --gateway=172.18.100.1 parkrating`
+  - Create a network `docker network create --driver bridge --subnet=172.18.100.0/24 --gateway=172.18.100.1 parkrating`
+  - Run the container(s)
+    ```
+    docker run -itd --network=parkrating --name prd_svc_redis prd_svc_redis:001
+    docker run -itd --network=parkrating --name prd_svc_mongodb prd_svc_mongodb:001
+    docker run -itd --network=parkrating -p 3003:3003 --name prd_svc_web prd_svc_web:001
+    docker run -itd --network=parkrating -p 8081:8081 --name prd_svc_app prd_svc_app:002-withoutredis /home/server/start.sh
+    ```
+3. Add firewall rules to allow 3003 and 8081 on GCP
 
 
 
