@@ -95,7 +95,7 @@ received notice: `2024/05/14 06:43:35 [notice] 48#48: signal process started`
 `docker run -itd --name prd_svc_app python:3.11.0`<br>
 `docker cp ~/opt/anaconda3/bin/pip prd_svc_app:/root/`<br>
 `cd server` `pip3 freeze > requirements.txt`<br>
-`docker cp ./server prd_svc_app:/home`<br>
+`docker cp ./server prd_svc_app:/home/`<br>
 `chmod 777 start.sh` -> `sh start.sh` <br>
 `docker commit <CONTAINER ID> prd_svc_app:001`<br>
 
