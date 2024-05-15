@@ -89,7 +89,7 @@ const Imgs = ({images}) => {
     return (
         <div>
             <Carousel autoplay style={{ background: `rgba(209, 209, 209, 0,5)`, height: 300, textAlign:"center"}}>
-                {images.map((img, idx) => <Image key = {idx} height={300} src={img} />)}
+                {images.map((img, idx) => <Image key = {idx} height={300} src={`${axios.defaults.baseURL}/api/file?id=${img}`} />)}
             </Carousel>
         </div>
     );

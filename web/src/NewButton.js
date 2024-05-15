@@ -151,7 +151,7 @@ const NewButton = ({newEvent}) => {
         <Row><Col span={3} style={{ marginTop: '1em' }}>Image(s): </Col></Row>
         <Row><Col span={24}>
           <Upload
-            action = "http://localhost:8081/api/upload"
+            action = {`${axios.defaults.baseURL}}/api/upload`}
             listType = "picture-card"
             fileList = {picList}
             onPreview={uploadImagePreviewHandle}

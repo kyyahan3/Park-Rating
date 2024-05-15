@@ -70,7 +70,6 @@ const ParkContent = ({newNotice}) =>{
       </div></Row>
     </Layout>
   )
-
 }
 
 export default MyParks;
