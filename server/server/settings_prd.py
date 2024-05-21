@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-a3=gi2!m^scc*+rdr2av!-e1!@&bj40nnh*wv#7v^+#igeab8p"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -92,6 +92,7 @@ DATABASES = {
         }
     },
     'Redis': {
+        'OPEN': False,
         'ENGINE': 'django.db.backends.dummy',
         'HOST': 'prd_svc_redis',
         'PORT': '6379',
