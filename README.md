@@ -103,7 +103,7 @@ received notice: `2024/05/14 06:43:35 [notice] 48#48: signal process started`
 `docker commit <CONTAINER ID> prd_svc_app:001`<br>
 
 #### Database
-commit directly
+Similar steps. Remember to `docker cp ./data prd_svc_mongodb:/data/`, `chmod +x import_data.sh`, and run `sh ./import_data.sh` after building the docker container on GCP. 
 
 ### Set up on GCP
 1. Create a new instance
