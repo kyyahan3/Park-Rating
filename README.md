@@ -1,34 +1,5 @@
-## Project set up
-### web
-- install [nodejs](https://nodejs.org/en/download)
-- create a react app: `npx create-react-app web`<br>
-Main js code are in `src` folder and `index.js` is the project entry file. Dependencies are in `node_modules` folder recorded in package.json.
-- activate front-end:<br>
-`cd web/`<br>
-`pnpm start` or `npm start`
-### server
-- `pip install Django`
-- create a django server: `django-admin startproject server`. 
-- Create a application in the project : `python3 manage.py startapp {name}`, name is `app` for this project. 
-- start the server: <br>
-`cd server/`<br>
-`python3 manage.py runserver localhost:8081`; add `--settings=server.settings_dev` for using development settings for better efficiency 
-### database
-#### Import data
-- `cd` Enter the folder with docker-compose.yml and start dockers `docker-compse up -d`
-- mongodb:
-  - `docker-compose exec mongodb mongosh`
-  - import data: 
-    - `docker-compose exec mongodb bash` 
-    - and then `mongoimport --db <db_name> --collection <collection_name> --file <file_path> --jsonArray`. For the ca_np.json data, the parameters will be "npdatabase", "ca_np" and "ca_np.json" respectively. 
-- redis: `docker-compose exec redis redis-cli`. 
-  - we can use `keys *` to check what was stored in redis DB, but this is not recommended when the db is large.
-#### Database operations
-- MongoDB:
-  - `docker exec -it <containerName> mongosh`  containerName is final_proj-mongodb-1 in my case.
-### .env
-To use the Google Map feature, we need to have an API key. create your `.env` like `.env.example` and set the key values.
 ## Main points
+Live app hosting on GCP: http://34.121.145.184:3003/parks
 1. System Architecture:
 - Caching with Redis: We implemented Redis as our caching system to enhance performance for frequently accessed data. When our system receives a request, it first checks the Redis cache. If the requested data is found there, it is returned immediately. However, if the data is not in the Redis cache, our system will then search for it in the MongoDB database.
 - Database with MongoDB: MongoDB serves as our primary database, ideal for storing complex information about national parks in America.
@@ -66,6 +37,37 @@ To use the Google Map feature, we need to have an API key. create your `.env` li
 - `get_park_detail`, `search_visitcenter`, `search_park_news` and other APIs support the detail page. Their working mechanism is similar to park_list.
 - Users can add a comment by clicking the "comment" button, which is facilitated by the `add_comment` API. After entering their comments and the information shown below, users can click the OK button, and the information will be added to this park. The most recent comment will be displayed at the top of the comment section, and the system will recalculate and update the average rating and total number of comments in MongoDB. Once you refresh the page, the updated rating and comment count will be displayed. <br>Note that this API will delete the previous cache for this park since the information has changed. Therefore, the next time the information is accessed, it will be retrieved from MongoDB, and the most updated information will be added to the cache as well.
   ![image](https://github.com/yahan-ds/Park-Rating/assets/93264144/802ad8f4-d050-45d4-98f9-041978f5df28)
+
+## Project set up
+### web
+- install [nodejs](https://nodejs.org/en/download)
+- create a react app: `npx create-react-app web`<br>
+Main js code are in `src` folder and `index.js` is the project entry file. Dependencies are in `node_modules` folder recorded in package.json.
+- activate front-end:<br>
+`cd web/`<br>
+`pnpm start` or `npm start`
+### server
+- `pip install Django`
+- create a django server: `django-admin startproject server`. 
+- Create a application in the project : `python3 manage.py startapp {name}`, name is `app` for this project. 
+- start the server: <br>
+`cd server/`<br>
+`python3 manage.py runserver localhost:8081`; add `--settings=server.settings_dev` for using development settings for better efficiency 
+### database
+#### Import data
+- `cd` Enter the folder with docker-compose.yml and start dockers `docker-compse up -d`
+- mongodb:
+  - `docker-compose exec mongodb mongosh`
+  - import data: 
+    - `docker-compose exec mongodb bash` 
+    - and then `mongoimport --db <db_name> --collection <collection_name> --file <file_path> --jsonArray`. For the ca_np.json data, the parameters will be "npdatabase", "ca_np" and "ca_np.json" respectively. 
+- redis: `docker-compose exec redis redis-cli`. 
+  - we can use `keys *` to check what was stored in redis DB, but this is not recommended when the db is large.
+#### Database operations
+- MongoDB:
+  - `docker exec -it <containerName> mongosh`  containerName is final_proj-mongodb-1 in my case.
+### .env
+To use the Google Map feature, we need to have an API key. create your `.env` like `.env.example` and set the key values.
 
 ## Other information
 UI component package: Ant Design (we used components like Layout, Button, Rate, Input textbox, Card, List, Typography, etc.)<br>
