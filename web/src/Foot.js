@@ -4,16 +4,16 @@ import { Layout } from 'antd';
 const {Footer} = Layout;
 
 const Foot = () => {
-    return (
+  return (
 
-      <Footer style={{
-        textAlign:'center',
-        // color:'#fff',
-        // backgroundColor:'#7dbcea'
-      }}>
-        
-      </Footer>
+    <Footer style={{
+      textAlign:'center',
+      // color:'#fff',
+      // backgroundColor:'#7dbcea'
+    }}>
+      
+    </Footer>
 
-    );
+  );
 }
 export default Foot;

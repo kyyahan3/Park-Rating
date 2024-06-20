@@ -97,8 +97,9 @@ def get_image(request):
 def get_park_list(request):
     tmp = request.GET.get("tmp", "false").lower() == 'true'  # Convert query parameter to boolean
     
+    # For Home page
     if not tmp:
-      # check in redis first
+    # check in redis first
       data = pyredis.getParkList()
       if data is not None:
           print("park_list find by redis.")
@@ -106,14 +107,14 @@ def get_park_list(request):
       data = pymongo.MongoDB.ca_np.find({}, {"id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
       print("park_list find by mongo.")
 
+    # For MyPark page
     else:
-      # check in redis first
-      data = pyredis.getTmpParkList()
-      if data is not None:
-          print("tmp_park_list find by redis.")
-          return response(0, "ok", data)
-      data = pymongo.MongoDB.ca_np_tmp.find({}, {"_id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
-      print("tmp_park_list find by mongo.")
+        data = pyredis.getTmpParkList()
+        if data is not None:
+            print("tmp_park_list find by redis.")
+            return response(0, "ok", data)
+        data = pymongo.MongoDB.ca_np_tmp.find({}, {"_id": 1, "fullName": 1, "rating": 1, "description": 1, "states": 1, "images": 1})
+        print("tmp_park_list find by mongo.")
 
     parks = []
     for x in data:
@@ -121,6 +122,8 @@ def get_park_list(request):
 
         # Check if 'images' is a list and proceed accordingly
         if isinstance(x['images'], list):
+            if len(x['images']) == 0:
+                continue
             for img in x['images']:
                 # Check if each image dictionary has a 'url' key
                 if 'url' in img:
@@ -348,14 +351,22 @@ def search_park_news(request):
     parkID = request.GET.get("parkID", "")
     park = []
 
-    park_code = pymongo.MongoDB.ca_np.find_one({"_id": parkID}, {'parkCode':1})
+    print("*** parkID:", parkID)
+
+    park_code = pymongo.MongoDB.ca_np.find_one({"id": parkID}, {'parkCode':1})
+
+    print("park_code:", park_code)
+
     if not park_code:
         return response(0, "ok", park)
     if "parkCode" not in park_code:
         return response(0, "ok", park)
-
+    
+    
+    
     data = pymongo.MongoDB.newsreleases.find({"relatedParks":{"$elemMatch": {'parkCode':park_code['parkCode']}}})
-    # print("news", data)
+    
+    print("news", data)
     if not data:
         return response(1, "no new released", [{"fullName":"", "title":"", "abstract":"", "time":""}])
 

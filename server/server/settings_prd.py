@@ -92,7 +92,7 @@ DATABASES = {
         }
     },
     'Redis': {
-        'OPEN': False,
+        'OPEN': True,
         'ENGINE': 'django.db.backends.dummy',
         'HOST': 'prd_svc_redis',
         'PORT': '6379',

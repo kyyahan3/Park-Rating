@@ -66,7 +66,7 @@ def parkDetailKey(id, tmp=False):
 def setParkDetail(id, detail, tmp=False):
     if settings.DATABASES['Redis']['OPEN']:
         value = json.dumps(detail)
-        RedisCache.set(parkDetailKey(id, tmp), value, ex=60)  # valid for 10 mins 600
+        RedisCache.set(parkDetailKey(id, tmp), value, ex=180)  # valid for 10 mins 600
 
 # get info in cache
 def getParkDetail(id, tmp=False):

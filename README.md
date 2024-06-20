@@ -1,3 +1,4 @@
+This is a full stack project for sharing information about parks using MongoDB and Redis. 
 ## Main points
 Live app hosting on GCP: http://34.121.145.184:3003/parks
 1. System Architecture:
@@ -8,7 +9,7 @@ Live app hosting on GCP: http://34.121.145.184:3003/parks
 - APIs for Detailed Searches: Developed RESTful APIs to enable detailed searches of park information.<br></br>
     <p float="left">
       <img src="home_page.png" height=360 width="600" />
-      <img src="detail.png" height=500 width="600" /> 
+      <img src="details.png" height=500 width="600" /> 
     </p>
 2. Web UI Design:
 - Built Using Django: We designed a simple web UI with Django to display park information.
@@ -65,7 +66,7 @@ Main js code are in `src` folder and `index.js` is the project entry file. Depen
   - we can use `keys *` to check what was stored in redis DB, but this is not recommended when the db is large.
 #### Database operations
 - MongoDB:
-  - `docker exec -it <containerName> mongosh`  containerName is final_proj-mongodb-1 in my case.
+  - `docker exec -it <containerName or containerId> mongosh`  
 ### .env
 To use the Google Map feature, we need to have an API key. create your `.env` like `.env.example` and set the key values.
 
@@ -98,7 +99,7 @@ received notice: `2024/05/14 06:43:35 [notice] 48#48: signal process started`
 `docker cp ~/opt/anaconda3/bin/pip prd_svc_app:/root/`<br>
 `cd server` `pip3 freeze > requirements.txt`<br>
 `docker cp ./server prd_svc_app:/home/`<br>
-`pip3 install -r requirement.txt`<br>
+`pip3 install -r requirements.txt`<br>
 `chmod 777 start.sh` -> `sh start.sh` <br>
 `docker commit <CONTAINER ID> prd_svc_app:001`<br>
 

@@ -26,12 +26,11 @@ const App = () => {
       <Head />
 
       <Routes>
-          <Route path='/parks' element = {<Parks windowHeight={bodyHeight} />} />
-          <Route path='/my-parks' element = {<MyParks windowHeight={bodyHeight} newEventCallback={newEventHandle}/>} />
-          <Route path='/detail' element={<Detail windowHeight={bodyHeight} />} />
-          {/* Ensure there's a route for the root "/" */}
-          <Route path="/" element = {<Parks windowHeight={bodyHeight}/>} />
-
+        <Route path='/parks' element = {<Parks windowHeight={bodyHeight} />} />
+        <Route path='/my-parks' element = {<MyParks windowHeight={bodyHeight} newEventCallback={newEventHandle}/>} />
+        <Route path='/detail' element={<Detail windowHeight={bodyHeight} />} />
+        {/* Ensure there's a route for the root "/" */}
+        <Route path="/" element = {<Parks windowHeight={bodyHeight}/>} />
       </Routes>
 
       <Footer></Footer>

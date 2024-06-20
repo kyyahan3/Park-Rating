@@ -41,18 +41,18 @@ const Maps = ({latlng, zoom, onClick=undefined, moveable=false}) =>{
 }
 
 const ReactMapPointComponent = () => {
-    const markerStyle={
-        border: '1px solid white',
-        borderRadius: '50%',
-        height: 10,
-        width: 10,
-        backgroundColor: 'red',
-        cursor: "pointer",
-        zInder: 10,
-    };
-    return(
-        <div style={markerStyle}/>
-    );
+  const markerStyle={
+    border: '1px solid white',
+    borderRadius: '50%',
+    height: 10,
+    width: 10,
+    backgroundColor: 'red',
+    cursor: "pointer",
+    zInder: 10,
+  };
+  return(
+    <div style={markerStyle}/>
+  );
 }
 
 export default Maps;
