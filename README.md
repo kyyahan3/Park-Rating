@@ -8,8 +8,8 @@ Live app hosting on GCP: http://34.121.145.184:3003/parks
   - There are other collections such as comments, newsreleases, thingstodo and images to store more data. We used hash (md5) to avoid duplicates in image collection because images are large files and we do not want to waste space on that.
 - APIs for Detailed Searches: Developed RESTful APIs to enable detailed searches of park information.<br></br>
     <p float="left">
-      <img src="home_page.png" height=360 width="600" />
-      <img src="details.png" height=500 width="600" /> 
+      <img src="home_page.png" height=430 width="600" />
+      <img src="details.png" height=620 width="600" /> 
     </p>
 2. Web UI Design:
 - Built Using Django: We designed a simple web UI with Django to display park information.
